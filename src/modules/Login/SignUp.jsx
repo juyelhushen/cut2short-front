@@ -67,6 +67,16 @@ const SignUp = () => {
 
   console.log("data", formData);
 
+  const handleGoogleLogin = () => {
+    window.location.href = "http://localhost:8080/oauth2/authorization/google";
+    console.log('juyal')
+
+  };
+
+  const handleGithubLogin = () => {
+    window.location.href = "http://localhost:8080/oauth2/authorization/github";
+  };
+
   return (
     <Box
       display="flex"
@@ -90,7 +100,7 @@ const SignUp = () => {
         color="white"
       >
         <Typography variant="h2" fontWeight="bold" mb={2}>
-          The best offer for your business
+          The best Platform for your product urls to manage.
         </Typography>
         <Typography variant="body1" sx={{ color: "#b0c4de" }}>
           Simplify your links and engage your audience with advanced analytics.
@@ -164,6 +174,7 @@ const SignUp = () => {
               variant="outlined"
               startIcon={<FcGoogle />}
               sx={{ marginBottom: 1 }}
+              onClick={handleGoogleLogin}
             >
               Sign up with Google
             </Button>
@@ -172,6 +183,7 @@ const SignUp = () => {
               variant="outlined"
               startIcon={<FaGithub />}
               sx={{ color: "black", borderColor: "black" }}
+              onClick={handleGithubLogin}
             >
               Sign up with GitHub
             </Button>

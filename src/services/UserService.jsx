@@ -1,3 +1,4 @@
+import axios from "axios";
 import { setUserData } from "../store/loginCred/LoginSlice";
 import { AxiosInstance } from "./AxiosInstance";
 
@@ -40,5 +41,19 @@ export const signin = async (data) => {
     return response.data;
   } catch (error) {
     console.error("errror in signing in : ", error);
+  }
+};
+
+export const handleGoogleCallback = async () => {
+  try {
+    const response = await axios.get(
+      "http://localhost:8080/auth/oauth2/callback"
+    );
+    const token = response.data.token;
+    localStorage.setItem("jwt", token);
+    console.log("Logged in with token:", token);
+    return token;
+  } catch (error) {
+    console.error("Error during login:", error);
   }
 };
