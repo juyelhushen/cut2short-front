@@ -35,25 +35,35 @@ export const signup = async (data, dispatch) => {
   }
 };
 
-export const signin = async (data) => {
+export const signin = async (data,dispatch) => {
   try {
     const response = await AxiosInstance.post("/api/user/login", data);
+    const { name, username, token } = response.data.data;
+
+    //storing
+    localStorage.setItem("name", name);
+    localStorage.setItem("username", username);
+    localStorage.setItem("token", token);
+
+    //dispatch
+    dispatch(
+      setUserData({
+        name: name,
+        username: username,
+        token: token,
+      })
+    );
+
     return response.data;
   } catch (error) {
     console.error("errror in signing in : ", error);
   }
 };
-
-export const handleGoogleCallback = async () => {
+export const getTest = async () => {
   try {
-    const response = await axios.get(
-      "http://localhost:8080/auth/oauth2/callback"
-    );
-    const token = response.data.token;
-    localStorage.setItem("jwt", token);
-    console.log("Logged in with token:", token);
-    return token;
+    const response = await AxiosInstance.get("/api/user");
+    return response;
   } catch (error) {
-    console.error("Error during login:", error);
+    console.error("errror in signing in : ", error);
   }
 };

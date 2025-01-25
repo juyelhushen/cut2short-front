@@ -23,6 +23,7 @@ import { Form, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { signup } from "../../services/UserService";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+// import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -65,7 +66,7 @@ const SignUp = () => {
     }));
   };
 
-  console.log("data", formData);
+
 
   const handleGoogleLogin = () => {
     window.location.href = "http://localhost:8080/oauth2/authorization/google";
@@ -76,6 +77,7 @@ const SignUp = () => {
   const handleGithubLogin = () => {
     window.location.href = "http://localhost:8080/oauth2/authorization/github";
   };
+
 
   return (
     <Box
