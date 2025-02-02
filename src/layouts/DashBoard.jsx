@@ -19,7 +19,9 @@ const DashboardLayout = () => {
     <div className="flex h-screen">
       <Sidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       <div className="flex-1 flex flex-col">
-        <TopBar />
+      <div className="relative z-10 overflow-hidden">
+          <TopBar />
+        </div>
         <Routes>
           <Route path="/" element={<Navigate to="home" />} />
           <Route path="home" element={<Home />} />
