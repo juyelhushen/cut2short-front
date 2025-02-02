@@ -6,7 +6,7 @@ import Login from "./modules/Login/Login";
 import SignUp from "./modules/Login/SignUp";
 import OAuth2Callback from "./auth/OAuth2Callback.jsx";
 
-const Dashboard = lazy(() => import("./modules/dashboard/DashBoard.jsx"));
+const Dashboard = lazy(() => import("./layouts/DashBoard.jsx"));
 
 const App = () => {
   return (
@@ -17,7 +17,7 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/oauth2/callback" element={<OAuth2Callback />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard/*" element={<Dashboard />} />
         </Routes>
       </Suspense>
     </Router>
