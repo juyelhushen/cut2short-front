@@ -14,14 +14,16 @@ const OAuth2Callback = () => {
       .then((response) => {
         console.log("response", response.data);
 
-        const { name, username, token } = response.data.data;
-
+        const { userId, name, username, token } = response.data.data;
+        
+        localStorage.setItem("userId", userId);
         localStorage.setItem("name", name);
         localStorage.setItem("username", username);
         localStorage.setItem("token", token);
 
         dispatch(
           setUserData({
+            userId:userId,
             name: name,
             username: username,
             token: token,

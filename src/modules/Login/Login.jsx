@@ -5,14 +5,10 @@ import {
   TextField,
   Typography,
   Divider,
-  Checkbox,
-  FormControlLabel,
   Paper,
   FormControl,
   IconButton,
 } from "@mui/material";
-import GitHubIcon from '@mui/icons-material/GitHub';
-import GoogleIcon from "@mui/icons-material/Google";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { signin } from "../../services/UserService";
@@ -20,11 +16,6 @@ import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
-const providers = [
-  { id: "github", name: "GitHub" },
-  { id: "google", name: "Google" },
-  { id: "credentials", name: "Email and Password" },
-];
 
 const Login = () => {
   const navigate = useNavigate();
