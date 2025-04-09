@@ -66,7 +66,7 @@ const Links = () => {
           >
             Create Link
           </Button>
-        </div>
+        </div>  
 
         <Input placeholder="Search links..." className="mb-4 " />
 
