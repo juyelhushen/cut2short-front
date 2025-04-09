@@ -38,9 +38,10 @@ export const signup = async (data, dispatch) => {
 export const signin = async (data,dispatch) => {
   try {
     const response = await AxiosInstance.post("/api/user/login", data);
-    const { name, username, token } = response.data.data;
+    const {userId, name, username, token } = response.data.data;
 
     //storing
+    localStorage.setItem("userId", userId);
     localStorage.setItem("name", name);
     localStorage.setItem("username", username);
     localStorage.setItem("token", token);
@@ -48,6 +49,7 @@ export const signin = async (data,dispatch) => {
     //dispatch
     dispatch(
       setUserData({
+        userId:userId,
         name: name,
         username: username,
         token: token,

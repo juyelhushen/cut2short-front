@@ -8,8 +8,9 @@ import {
   ChartBarIcon,
   Cog6ToothIcon,
 } from "@heroicons/react/24/outline";
-import { Button, Divider, Menu, MenuItem } from "@mui/material";
+import { Box, Button, Divider, Menu, MenuItem } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import chainIcon from "../../assets/chain.png";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(true);
@@ -26,31 +27,53 @@ const Sidebar = () => {
       animate={{ width: isOpen ? 250 : 80 }}
       transition={{ duration: 0.3 }}
     >
-      <button
+      <Box
         onClick={() => setIsOpen(!isOpen)}
-        className="p-2 text-gray-600 hover:text-blue-500"
+        className="p-2 focus:none"
       >
-        {isOpen ? "←" : "→"}
-      </button>
+        {isOpen ? (
+          <Box display={'flex'} justifyContent={'space-between'} alignContent={'center'} alignItems={'center'} className='w-full '>
+            <img src={chainIcon} alt="Chain Icon" className="w-10 h-10 mr-2" />
+            <div className="text-lg font-semibold">←</div>
+            {" "}
+          </Box>
+        ) : (
+          <img src={chainIcon} alt="Chain Icon" className="w-5 h-5 mr-2" /> 
+        )}
+      </Box>
 
       <button className="bg-blue-700 text-white py-3 px-4 my-3 border-none font-bold flex flex-row justify-center">
         <AddIcon />
         {isOpen && <span className="ml-3">Create New</span>}
       </button>
 
-      <Divider sx={{marginY:'8px'}} className="bg-gray-300" />
+      <Divider sx={{ marginY: "8px" }} className="bg-gray-300" />
 
       <nav className="flex flex-col space-y-2">
         {[
-          { name: "Home", icon: <HomeIcon className="w-5 h-5" />, path: "/dashboard/home" },
-          { name: "Links", icon: <LinkIcon className="w-5 h-5" />, path: "/dashboard/links" },
-          { name: "QR Codes", icon: <QrCodeIcon className="w-5 h-5" />, path: "/dashboard/qrcodes" },
+          {
+            name: "Home",
+            icon: <HomeIcon className="w-5 h-5" />,
+            path: "/dashboard/home",
+          },
+          {
+            name: "Links",
+            icon: <LinkIcon className="w-5 h-5" />,
+            path: "/dashboard/links",
+          },
+          {
+            name: "QR Codes",
+            icon: <QrCodeIcon className="w-5 h-5" />,
+            path: "/dashboard/qrcodes",
+          },
         ].map((item) => (
           <Link
             key={item.name}
             to={item.path}
             className={`flex items-center p-2 rounded-md ${
-              activeItem === item.name ? "bg-blue-100 text-blue-600" : "hover:bg-gray-100"
+              activeItem === item.name
+                ? "bg-blue-100 text-blue-600"
+                : "hover:bg-gray-100"
             }`}
             onClick={() => handleItemClick(item.name)}
           >
@@ -62,14 +85,24 @@ const Sidebar = () => {
         <Divider className="bg-gray-300" />
 
         {[
-          { name: "Analytics", icon: <ChartBarIcon className="w-5 h-5" />, path: "/dashboard/analytics" },
-          { name: "Settings", icon: <Cog6ToothIcon className="w-5 h-5" />, path: "/dashboard/settings" },
+          {
+            name: "Analytics",
+            icon: <ChartBarIcon className="w-5 h-5" />,
+            path: "/dashboard/analytics",
+          },
+          {
+            name: "Settings",
+            icon: <Cog6ToothIcon className="w-5 h-5" />,
+            path: "/dashboard/settings",
+          },
         ].map((item) => (
           <Link
             key={item.name}
             to={item.path}
             className={`flex items-center p-2 rounded-md ${
-              activeItem === item.name ? "bg-blue-100 text-blue-600" : "hover:bg-gray-100"
+              activeItem === item.name
+                ? "bg-blue-100 text-blue-600"
+                : "hover:bg-gray-100"
             }`}
             onClick={() => handleItemClick(item.name)}
           >

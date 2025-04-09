@@ -45,7 +45,7 @@ const Hero = () => {
               value={inputUrl}
               onChange={(e) => setInputUrl(e.target.value)}
               placeholder="Paste a long URL to shorten..."
-              className="w-3/4 px-4 py-2 border rounded-l-md text-black"
+              className="w-3/4 px-4 py-2 border rounded-l-md text-white"
             />
             <button
               onClick={handleUrlShortClick}

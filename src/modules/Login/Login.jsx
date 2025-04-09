@@ -5,36 +5,32 @@ import {
   TextField,
   Typography,
   Divider,
-  Checkbox,
-  FormControlLabel,
   Paper,
   FormControl,
   IconButton,
 } from "@mui/material";
-import GitHubIcon from '@mui/icons-material/GitHub';
-import GoogleIcon from "@mui/icons-material/Google";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { signin } from "../../services/UserService";
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-
-const providers = [
-  { id: "github", name: "GitHub" },
-  { id: "google", name: "Google" },
-  { id: "credentials", name: "Email and Password" },
-];
+import { useAuth } from "../../auth/AuthProvider";
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
-
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const { login, LoadingComponent } = useAuth();
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState(location.state?.error || "");
+
+  // const [formData, setFormData] = useState({
+  //   email: "",
+  //   password: "",
+  // });
+  // const [showPassword, setShowPassword] = useState(false);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -49,11 +45,12 @@ const Login = () => {
   const handleSignIn = async () => {
     try {
       const response = await signin(formData, dispatch);
-      if (response.success) {
-        navigate("/dashboard");
+      if (response?.success) {
+        login(response.data);
+        navigate(location.state?.from?.pathname || "/dashboard");
       }
     } catch (error) {
-      throw new Error("error", error);
+      setError(error.message || "Login failed. Please try again.");
     }
   };
 
@@ -65,18 +62,14 @@ const Login = () => {
     }));
   };
 
-
-
   const handleGoogleLogin = () => {
     window.location.href = "http://localhost:8080/oauth2/authorization/google";
-    console.log('juyal')
-
+    console.log("juyal");
   };
 
   const handleGithubLogin = () => {
     window.location.href = "http://localhost:8080/oauth2/authorization/github";
   };
-
 
   return (
     <Box
@@ -156,7 +149,7 @@ const Login = () => {
         >
           <Box margin={"10px"}>
             <Typography variant="h5" fontWeight="bold" textAlign={"center"}>
-              Signin 
+              Signin
             </Typography>
           </Box>
           <Box mb={3}>
