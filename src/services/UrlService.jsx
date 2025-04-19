@@ -30,9 +30,12 @@ export const deleteUrlsId = async (id) => {
   }
 };
 
-export const createUrlShort = async (id) => {
+export const createUrlShort = async (payload) => {
   try {
-    const response = await AxiosInstance.delete(`/api/v1/url/delete/${id}`);
+    const response = await AxiosInstance.post(
+      `/api/v1/url/shorten/set`,
+      payload
+    );
     return response.data;
   } catch (error) {
     console.error("error in fetching urls", error);

@@ -16,12 +16,13 @@ import chainIcon from "../../assets/chain.png";
 import { toast } from "react-toastify";
 import useConfirmation from "../../hooks/useConfirmation";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-
+import useLoading from "../../hooks/useLoading";
 
 const Links = () => {
   const userId = useSelector((state) => state.userData.userId);
   const navigate = useNavigate();
   const { openDialog, ConfirmationDialog } = useConfirmation();
+  const { LoadingComponent, startLoading, stopLoading } = useLoading();
 
   const [urls, setUrls] = useState([]);
   const [newUrl, setNewUrl] = useState("");
@@ -32,10 +33,13 @@ const Links = () => {
 
   const fetchUrls = async (userId) => {
     try {
+      startLoading();
       const response = await getUrlsByUserId(userId);
       setUrls(response.data);
     } catch (error) {
       console.error("Error fetching URLs:", error);
+    } finally {
+      stopLoading();
     }
   };
 
@@ -45,8 +49,10 @@ const Links = () => {
       "This will permanently delete the short URL and all its analytics data.",
       async () => {
         try {
+          startLoading();
           const response = await deleteUrlsId(id);
           if (response.success) {
+            stopLoading();
             fetchUrls(userId);
             toast.success("URL deleted successfully");
           }
@@ -66,6 +72,7 @@ const Links = () => {
     <div className="container">
       <div className="max-w-6xl my-5 mx-auto bg-white shadow-lg rounded-lg p-6">
         <ConfirmationDialog />
+        <LoadingComponent/>
 
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">C2S Links</h2>

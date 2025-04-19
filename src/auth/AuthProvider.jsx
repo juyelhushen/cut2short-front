@@ -8,7 +8,7 @@ const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
   const dispatch = useDispatch();
-  const { LoadingComponent, withLoading } = useLoading();
+  const { LoadingComponent, startLoading, stopLoading } = useLoading();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
 
@@ -17,23 +17,23 @@ const AuthProvider = ({ children }) => {
   }, []);
 
   const checkAuth = async () => {
-    await withLoading(async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (token) {
-          const userData = await getUserInfo();
-          if (userData) {
-            dispatch(setUserData(userData));
-            setIsAuthenticated(true);
-          }
+    try {
+      startLoading();
+      const token = localStorage.getItem("token");
+      if (token) {
+        const userData = await getUserInfo();
+        if (userData) {
+          dispatch(setUserData(userData));
+          setIsAuthenticated(true);
         }
-      } catch (error) {
-        console.error("Auth check failed:", error);
-        logout();
-      } finally {
-        setAuthChecked(true);
       }
-    });
+    } catch (error) {
+      console.error("Auth check failed:", error);
+      logout();
+    } finally {
+      setAuthChecked(true);
+      startLoading();
+    }
   };
 
   const login = (userData) => {

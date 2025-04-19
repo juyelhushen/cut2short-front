@@ -6,6 +6,9 @@ const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, authChecked, LoadingComponent } = useAuth();
   const location = useLocation();
 
+  console.log("check0", isAuthenticated);
+  
+
   if (!authChecked) {
     return <LoadingComponent />;
   }
