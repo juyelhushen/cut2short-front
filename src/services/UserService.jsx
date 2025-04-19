@@ -1,6 +1,6 @@
 import axios from "axios";
-import { setUserData } from "../store/loginCred/LoginSlice";
 import { AxiosInstance } from "./AxiosInstance";
+import { setUserData } from "../store/slices/authSlice";
 
 export const getUserInfo = async () => {
   AxiosInstance.get("/api/user/info", { withCredentials: true })
@@ -13,9 +13,10 @@ export const getUserInfo = async () => {
 export const signup = async (data, dispatch) => {
   try {
     const response = await AxiosInstance.post("/api/user/register", data);
-    const { name, username, token } = response.data.data;
+    const { name, username, token, userId } = response.data.data;
 
     //storing
+    localStorage.setItem("userId", userId);
     localStorage.setItem("name", name);
     localStorage.setItem("username", username);
     localStorage.setItem("token", token);
@@ -23,6 +24,7 @@ export const signup = async (data, dispatch) => {
     //dispatch
     dispatch(
       setUserData({
+        userId: userId,
         name: name,
         username: username,
         token: token,
@@ -35,10 +37,10 @@ export const signup = async (data, dispatch) => {
   }
 };
 
-export const signin = async (data,dispatch) => {
+export const signin = async (data, dispatch) => {
   try {
     const response = await AxiosInstance.post("/api/user/login", data);
-    const {userId, name, username, token } = response.data.data;
+    const { userId, name, username, token } = response.data.data;
 
     //storing
     localStorage.setItem("userId", userId);
@@ -49,7 +51,7 @@ export const signin = async (data,dispatch) => {
     //dispatch
     dispatch(
       setUserData({
-        userId:userId,
+        userId: userId,
         name: name,
         username: username,
         token: token,

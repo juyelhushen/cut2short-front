@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import TopBar from "./dashboard/Topbar";
@@ -11,26 +12,26 @@ import CreateOrUpdateUrl from "../components/CreateOrUpdateUrl";
 const DashboardLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  const toggleSidebar = (state) => {
-    setIsSidebarOpen(state);
-  };
-
   return (
     <div className="flex h-screen">
-      <Sidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+      <Sidebar isOpen={isSidebarOpen} onToggle={setIsSidebarOpen} />
       <div className="flex-1 flex flex-col">
         <div className="relative z-10 overflow-hidden">
           <TopBar />
         </div>
-        <Routes>
-          <Route path="/" element={<Navigate to="home" />} />
-          <Route path="home" element={<Home />} />
-          <Route path="links" element={<Links />} />
-          <Route path="links/create" element={<CreateOrUpdateUrl />} />
-          <Route path="links/edit/:id" element={<CreateOrUpdateUrl />} />
-          <Route path="qrcodes" element={<QRCode />} />
-          <Route path="*" element={<MainContent />} />
-        </Routes>
+        <div className="flex-1 overflow-auto">
+          <Routes>
+            <Route index element={<Home />} />
+            <Route path="home" element={<Home />} />
+            <Route path="links">
+              <Route index element={<Links />} />
+              <Route path="create" element={<CreateOrUpdateUrl />} />
+              <Route path="edit/:id" element={<CreateOrUpdateUrl />} />
+            </Route>
+            <Route path="qrcodes" element={<QRCode />} />
+            <Route path="*" element={<MainContent />} />
+          </Routes>
+        </div>
       </div>
     </div>
   );

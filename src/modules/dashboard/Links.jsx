@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { getUrlsByUserId } from "../../services/UrlService";
+import { useNavigate } from "react-router-dom";
+import { deleteUrlsId, getUrlsByUserId } from "../../services/UrlService";
 import { useSelector } from "react-redux";
 import { Button, Card, Input } from "@mui/material";
 import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
@@ -13,10 +13,15 @@ import {
   BarChart,
 } from "lucide-react";
 import chainIcon from "../../assets/chain.png";
+import { toast } from "react-toastify";
+import useConfirmation from "../../hooks/useConfirmation";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+
 
 const Links = () => {
   const userId = useSelector((state) => state.userData.userId);
   const navigate = useNavigate();
+  const { openDialog, ConfirmationDialog } = useConfirmation();
 
   const [urls, setUrls] = useState([]);
   const [newUrl, setNewUrl] = useState("");
@@ -34,39 +39,44 @@ const Links = () => {
     }
   };
 
-  // const createUrl = async () => {
-  //     if (!newUrl) return;
-  //     try {
-  //         await axios.post("http://localhost:8080/api/urls", { originalUrl: newUrl, userId: 1 });
-  //         setNewUrl("");
-  //         fetchUrls();
-  //     } catch (error) {
-  //         console.error("Error creating URL:", error);
-  //     }
-  // };
-
-  // const deleteUrl = async (id) => {
-  //     try {
-  //         await axios.delete(`http://localhost:8080/api/urls/${id}`);
-  //         fetchUrls();
-  //     } catch (error) {
-  //         console.error("Error deleting URL:", error);
-  //     }
-  // };
+  const handleDelete = (id) => {
+    openDialog(
+      "Delete Short URL",
+      "This will permanently delete the short URL and all its analytics data.",
+      async () => {
+        try {
+          const response = await deleteUrlsId(id);
+          if (response.success) {
+            fetchUrls(userId);
+            toast.success("URL deleted successfully");
+          }
+        } catch (error) {
+          toast.error("Failed to delete URL", error);
+        }
+      },
+      {
+        confirmText: "Delete",
+        cancelText: "Keep it",
+        icon: DeleteOutlineIcon,
+      }
+    );
+  };
 
   return (
     <div className="container">
       <div className="max-w-6xl my-5 mx-auto bg-white shadow-lg rounded-lg p-6">
+        <ConfirmationDialog />
+
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">C2S Links</h2>
           <Button
             variant="outlined"
             startIcon={<PlaylistAddIcon />}
-            onClick={() => navigate("/links/create")}
+            onClick={() => navigate("create", { relative: "path" })}
           >
             Create Link
           </Button>
-        </div>  
+        </div>
 
         <Input placeholder="Search links..." className="mb-4 " />
 
@@ -80,7 +90,6 @@ const Links = () => {
             </div>
 
             <div className="flex-1 text-left space-y-2 ">
-              {" "}
               <h3 className="font-semibold">{url.title}</h3>
               <a
                 href={`https://${url.shortenUrl}`}
@@ -109,7 +118,11 @@ const Links = () => {
               <Button variant="outline" size="icon">
                 <Edit size={16} />
               </Button>
-              <Button variant="outline" size="icon">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => handleDelete(url.id)}
+              >
                 <Trash size={16} />
               </Button>
               <Button variant="outline" size="icon">

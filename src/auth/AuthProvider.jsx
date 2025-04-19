@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import useLoading from "../hooks/useLoading";
 import { getUserInfo } from "../services/UserService";
-import { setUserData } from "../store/loginCred/LoginSlice";
+import { setUserData } from "../store/slices/authSlice";
 
 const AuthContext = createContext();
 
@@ -67,4 +67,5 @@ const AuthProvider = ({ children }) => {
 };
 
 export default AuthProvider;
+
 export const useAuth = () => useContext(AuthContext);

@@ -2,10 +2,8 @@ import React from 'react'
 
 const CreateOrUpdateUrl = () => {
   return (
-    <div>
-      <h2>Thelkfdjgodsijbni</h2>
-    </div>
+    <div>CreateOrUpdateUrl</div>
   )
 }
 
-export default CreateOrUpdateUrl;
+export default CreateOrUpdateUrl
