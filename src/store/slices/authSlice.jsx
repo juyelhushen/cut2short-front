@@ -1,12 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const loginSlice = createSlice({
-  name: "user",
+const authSlice = createSlice({
+  name: "auth",
   initialState: {
+    token: localStorage.getItem("token") || null,
     userId: localStorage.getItem("userId") || "",
     name: localStorage.getItem("name") || "",
     username: localStorage.getItem("username") || "",
-    token: localStorage.getItem("token") || "",
   },
   reducers: {
     setUserData: (state, action) => {
@@ -25,5 +25,5 @@ const loginSlice = createSlice({
   },
 });
 
-export const { setUserData, clearUserData } = loginSlice.actions;
-export default loginSlice.reducer;
+export const { setUserData, clearUserData } = authSlice.actions;
+export default authSlice.reducer;

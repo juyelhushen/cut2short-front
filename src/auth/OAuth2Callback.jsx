@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useDispatch } from "react-redux";
-import { setUserData } from "../store/loginCred/LoginSlice";
 import { useAuth } from "./AuthProvider";
 
 const OAuth2Callback = () => {
