@@ -44,11 +44,9 @@ const CreateOrUpdateUrl = () => {
     const errors: FormState["errors"] = {};
 
     // URL validation
-    if (
-      !/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/.test(
-        state.destination
-      )
-    ) {
+    try {
+      new URL(state.destination);
+    } catch (_) {
       errors.destination = "Please enter a valid URL";
     }
 
