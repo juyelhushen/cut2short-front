@@ -41,3 +41,21 @@ export const createUrlShort = async (payload) => {
     console.error("error in fetching urls", error);
   }
 };
+
+export const getUrlById = async (id) => {
+  try {
+    const response = await AxiosInstance.get(`/api/v1/url/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("error in fetching urls", error);
+  }
+};
+
+export const updateUrl = async (payload) => {
+  try {
+    const response = await AxiosInstance.patch(`/api/v1/url/update`, payload);
+    return response.data;
+  } catch (error) {
+    console.error("error in fetching urls", error);
+  }
+};

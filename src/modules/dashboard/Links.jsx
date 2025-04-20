@@ -68,11 +68,15 @@ const Links = () => {
     );
   };
 
+  const handleEdit = (id) => {
+    navigate(`edit/${id}`, { relative: "path" });
+  };
+
   return (
     <div className="container">
       <div className="max-w-6xl my-5 mx-auto bg-white shadow-lg rounded-lg p-6">
         <ConfirmationDialog />
-        <LoadingComponent/>
+        <LoadingComponent />
 
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">C2S Links</h2>
@@ -122,7 +126,11 @@ const Links = () => {
               <Button variant="outline" size="icon">
                 <Share2 size={16} />
               </Button>
-              <Button variant="outline" size="icon">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => handleEdit(url.id)}
+              >
                 <Edit size={16} />
               </Button>
               <Button
