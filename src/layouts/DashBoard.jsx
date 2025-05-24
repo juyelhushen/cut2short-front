@@ -1,13 +1,12 @@
-
 import React, { useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import TopBar from "./dashboard/Topbar";
-import Sidebar from "./dashboard/SideBar";
 import Home from "../modules/dashboard/Home";
 import Links from "../modules/dashboard/Links";
 import QRCode from "../modules/dashboard/QRCode";
 import MainContent from "./dashboard/MainContent ";
 import CreateOrUpdateUrl from "../components/CreateOrUpdateUrl";
+import Sidebar from "./dashboard/Sidebar";
 
 const DashboardLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
