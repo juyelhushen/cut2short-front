@@ -1,15 +1,17 @@
 {
-  "name": "url-shortner-front",
+  "homepage": "https://cut2short-frontend.onrender.com",
+  "name": "cut2short-frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview",
-    "start": "npm run dev"
-  },
+  "dev": "vite",
+  "build": "vite build",
+  "lint": "eslint .",
+  "preview": "vite preview",
+  "start": "npm run dev",
+  "preview:prod": "vite build && vite preview"
+},
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",

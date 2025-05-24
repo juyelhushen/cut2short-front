@@ -4,41 +4,12 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { useAuth } from "./AuthProvider";
 
+// const API_BASE_URL = "http://localhost:8080";
+const API_BASE_URL = "https://cut2short-backend.onrender.com";
+
 const OAuth2Callback = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const { login, LoadingComponent } = useAuth();
-
-  // const navigate = useNavigate();
-  // const dispatch = useDispatch();
-
-  // useEffect(() => {
-  //   axios
-  //     .get("http://localhost:8080/oauth2/callback", { withCredentials: true })
-  //     .then((response) => {
-  //       console.log("response", response.data);
-
-  //       const { userId, name, username, token } = response.data.data;
-
-  //       localStorage.setItem("userId", userId);
-  //       localStorage.setItem("name", name);
-  //       localStorage.setItem("username", username);
-  //       localStorage.setItem("token", token);
-
-  //       dispatch(
-  //         setUserData({
-  //           userId:userId,
-  //           name: name,
-  //           username: username,
-  //           token: token,
-  //         })
-  //       );
-  //       navigate("/dashboard");
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error during OAuth2 callback:", error);
-  //     });
-  // }, []);
 
   useEffect(() => {
     handleOAuthCallback();
@@ -46,10 +17,9 @@ const OAuth2Callback = () => {
 
   const handleOAuthCallback = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:8080/oauth2/callback",
-        { withCredentials: true }
-      );
+      const response = await axios.get(`${API_BASE_URL}/oauth2/callback`, {
+        withCredentials: true,
+      });
 
       const { userId, name, username, token } = response.data.data;
       login({ userId, name, username, token });

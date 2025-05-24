@@ -16,30 +16,23 @@ import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useAuth } from "../../auth/AuthProvider";
+import loginImage from "../../assets/loginimg.png";
+import { motion } from "framer-motion";
+import linkIcon from "../../assets/whiteLogo.png";
 
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
-  const { login, LoadingComponent } = useAuth();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(location.state?.error || "");
 
-  // const [formData, setFormData] = useState({
-  //   email: "",
-  //   password: "",
-  // });
-  // const [showPassword, setShowPassword] = useState(false);
-
   const handleClickShowPassword = () => setShowPassword((show) => !show);
-
-  const handleMouseDownPassword = (event) => {
-    event.preventDefault();
-  };
-
-  const handleMouseUpPassword = (event) => {
-    event.preventDefault();
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSignIn = async () => {
@@ -54,21 +47,24 @@ const Login = () => {
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const handleGoogleLogin = () => {
+    window.location.href =
+      "https://cut2short-backend.onrender.com/oauth2/authorization/google";
   };
 
-  const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:8080/oauth2/authorization/google";
-    console.log("juyal");
-  };
+  // const handleGithubLogin = () => {
+  //   window.location.href =
+  //     "https://cut2short-backend.onrender.com/oauth2/authorization/github";
+  // };
+
+  //   const handleGoogleLogin = () => {
+  //   window.location.href =
+  //     "http://localhost:8080/oauth2/authorization/google";
+  // };
 
   const handleGithubLogin = () => {
-    window.location.href = "http://localhost:8080/oauth2/authorization/github";
+    window.location.href =
+      "https://cut2short-backend.onrender.com/oauth2/authorization/github";
   };
 
   return (
@@ -77,88 +73,116 @@ const Login = () => {
       flexWrap="wrap"
       width="100%"
       height="100vh"
-      p={4}
       sx={{
         background:
-          "linear-gradient(to bottom right, #1e3a8a, #1d4ed8, #2563eb)",
+          "linear-gradient(to bottom right, #0f172a, #1e3a8a, #2563eb)",
+        overflow: "hidden",
       }}
     >
-      {/* Left Section */}
       <Box
+        position="absolute"
+        top={20}
+        right={30}
         display="flex"
-        flexDirection="column"
-        justifyContent="center"
-        textAlign={{ xs: "center", md: "left" }}
-        px={{ xs: 4, md: 10 }}
-        width={{ xs: "100%", md: "50%" }}
-        color="white"
+        alignItems="center"
+        zIndex={10}
+        sx={{
+          cursor: "pointer",
+          transition: "transform 0.2s ease-in-out",
+          "&:hover": {
+            transform: "scale(1.05)",
+          },
+        }}
+        onClick={() => navigate("/")}
       >
-        <Typography variant="h2" fontWeight="bold" mb={2}>
-          The best Platform for your product urls to manage.
-        </Typography>
-        <Typography variant="body1" sx={{ color: "#b0c4de" }}>
-          Simplify your links and engage your audience with advanced analytics.
-        </Typography>
+        <img
+          src={linkIcon}
+          alt="C2S logo"
+          style={{ width: 80, height: 80, marginRight: 8 }}
+        />
       </Box>
+
+      <motion.div
+        initial={{ opacity: 0, x: -100 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.8 }}
+        style={{
+          width: "100%",
+          maxWidth: "50%",
+          padding: "4rem 2rem",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          background: "linear-gradient(135deg, #1e293b, #0f172a)",
+          color: "white",
+        }}
+      >
+        <img
+          src={loginImage}
+          alt="Login Illustration"
+          style={{
+            width: "80%",
+            maxWidth: "500px",
+            marginBottom: "2rem",
+            borderRadius: "1rem",
+            boxShadow: "0 0 25px rgba(255,255,255,0.1)",
+          }}
+        />
+        <Typography variant="h5" fontWeight="bold" mb={2}>
+          Manage your product URLs in one place.
+        </Typography>
+        <Typography variant="body1" sx={{ color: "#cbd5e1" }}>
+          Shorten, analyze, and control with ease.
+        </Typography>
+      </motion.div>
 
       {/* Right Section */}
       <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
         width={{ xs: "100%", md: "50%" }}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
         position="relative"
       >
-        {/* Background Circles */}
-        <Box
-          sx={{
-            position: "absolute",
-            width: "10rem",
-            height: "10rem",
-            borderRadius: "50%",
-            backgroundColor: "#2563eb",
-            opacity: 0.3,
-            filter: "blur(20px)",
-            top: "-2rem",
-            left: "-2rem",
-          }}
-        />
-        <Box
-          sx={{
-            position: "absolute",
-            width: "14rem",
-            height: "14rem",
-            borderRadius: "50%",
-            backgroundColor: "#1d4ed8",
-            opacity: 0.3,
-            filter: "blur(30px)",
-            top: "5rem",
-            right: "-2rem",
-          }}
-        />
-
-        <Paper
-          elevation={10}
-          sx={{
-            width: "100%",
-            maxWidth: "500px",
-            padding: 4,
-            zIndex: 1,
-            borderRadius: "12px",
-          }}
+        <motion.div
+          initial={{ opacity: 0, y: 60 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
         >
-          <Box margin={"10px"}>
-            <Typography variant="h5" fontWeight="bold" textAlign={"center"}>
-              Signin
+          <Paper
+            elevation={6}
+            sx={{
+              maxWidth: 460,
+              padding: 4,
+              borderRadius: "20px",
+              backdropFilter: "blur(12px)",
+              backgroundColor: "rgba(255,255,255,0.07)",
+              border: "1px solid rgba(255,255,255,0.2)",
+              boxShadow: "0 8px 32px rgba(31, 38, 135, 0.37)",
+              color: "white",
+            }}
+          >
+            <Typography
+              variant="h5"
+              fontWeight="bold"
+              textAlign="center"
+              mb={3}
+            >
+              Welcome back 👋
             </Typography>
-          </Box>
-          <Box mb={3}>
+
             <Button
               fullWidth
               variant="outlined"
               startIcon={<FcGoogle />}
-              sx={{ marginBottom: 1 }}
               onClick={handleGoogleLogin}
+              sx={{
+                mb: 1,
+                color: "white",
+                borderColor: "#e5e7eb",
+                "&:hover": { borderColor: "white" },
+              }}
             >
               Sign in with Google
             </Button>
@@ -166,80 +190,84 @@ const Login = () => {
               fullWidth
               variant="outlined"
               startIcon={<FaGithub />}
-              sx={{ color: "black", borderColor: "black" }}
               onClick={handleGithubLogin}
+              sx={{
+                mb: 3,
+                color: "white",
+                borderColor: "#e5e7eb",
+                "&:hover": { borderColor: "white" },
+              }}
             >
               Sign in with GitHub
             </Button>
-          </Box>
 
-          <Divider sx={{ marginY: 3 }}>or</Divider>
+            <Divider sx={{ my: 4, borderColor: "rgba(255,255,255,0.2)" }}>
+              or
+            </Divider>
 
-          <FormControl className="w-full">
-            <TextField
-              fullWidth
-              label="Email"
-              type="email"
-              variant="outlined"
-              placeholder="your@mail.com"
-              name="email"
-              value={formData.email}
-              size="small"
-              margin="normal"
-              onChange={handleInputChange}
-            />
-            <TextField
-              fullWidth
-              label="Password"
-              type={showPassword ? "text" : "password"}
-              variant="outlined"
-              size="small"
-              margin="normal"
-              InputProps={{
-                endAdornment: (
-                  <IconButton
-                    onClick={handleClickShowPassword}
-                    onMouseDown={handleMouseDownPassword}
-                    onMouseUp={handleMouseUpPassword}
-                    edge="end"
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                ),
-              }}
-            />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{
-                backgroundColor: "#2563eb",
-                "&:hover": { backgroundColor: "#1e40af" },
-                marginTop: 3,
-              }}
-              onClick={handleSignIn}
+            <FormControl fullWidth>
+              <TextField
+                label="Email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                size="small"
+                margin="normal"
+                sx={{ input: { color: "white" } }}
+                InputLabelProps={{ style: { color: "#cbd5e1" } }}
+              />
+              <TextField
+                label="Password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                type={showPassword ? "text" : "password"}
+                size="small"
+                margin="normal"
+                sx={{ input: { color: "white" } }}
+                InputLabelProps={{ style: { color: "#cbd5e1" } }}
+                InputProps={{
+                  endAdornment: (
+                    <IconButton onClick={handleClickShowPassword} edge="end">
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  ),
+                }}
+              />
+
+              <Button
+                variant="contained"
+                onClick={handleSignIn}
+                sx={{
+                  mt: 3,
+                  backgroundColor: "#3b82f6",
+                  color: "white",
+                  fontWeight: "bold",
+                  "&:hover": { backgroundColor: "#1d4ed8" },
+                }}
+              >
+                Sign in
+              </Button>
+            </FormControl>
+
+            <Typography
+              variant="caption"
+              display="block"
+              mt={2}
+              textAlign="center"
             >
-              Sign in
-            </Button>
-          </FormControl>
-          <Box textAlign={"start"} marginTop={"10px"}>
-            <Typography sx={{ fontSize: "10px" }}>
-              By creating an account, you agree to C2S's{" "}
-              <span className="font-bold underline cursor-pointer">
-                Terms of Service
-              </span>
-              ,
-              <span className="font-bold underline cursor-pointer">
-                Privacy Policy
+              By signing in, you agree to our{" "}
+              <span style={{ textDecoration: "underline", cursor: "pointer" }}>
+                Terms
               </span>{" "}
-              and{" "}
-              <span className="font-bold underline cursor-pointer">
-                Acceptable Use Policy
+              &{" "}
+              <span style={{ textDecoration: "underline", cursor: "pointer" }}>
+                Privacy Policy
               </span>
               .
             </Typography>
-          </Box>
-        </Paper>
+          </Paper>
+        </motion.div>
       </Box>
     </Box>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -9,11 +9,11 @@ import {
   Divider,
   Grid,
 } from "@mui/material";
-import { createUrlShort } from "../services/UrlService";
-import { useNavigate } from "react-router-dom";
+import { createUrlShort, getUrlById, updateUrl } from "../services/UrlService";
 import useConfirmation from "../hooks/useConfirmation";
 import useLoading from "../hooks/useLoading";
 import CheckIcon from "@mui/icons-material/Check";
+import { useParams, useNavigate } from "react-router-dom";
 
 interface FormState {
   destination: string;
@@ -25,9 +25,11 @@ interface FormState {
     backHalf?: string;
   };
   isSubmitting: false;
+  shortenUrl: "";
 }
 
 const CreateOrUpdateUrl = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const { openDialog, ConfirmationDialog } = useConfirmation();
   const { LoadingComponent, startLoading, stopLoading } = useLoading();
@@ -38,21 +40,18 @@ const CreateOrUpdateUrl = () => {
     backHalf: "",
     errors: {},
     isSubmitting: false,
+    shortenUrl: "",
   });
 
   const validate = (): boolean => {
     const errors: FormState["errors"] = {};
 
-    // URL validation
-    if (
-      !/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/.test(
-        state.destination
-      )
-    ) {
+    try {
+      new URL(state.destination);
+    } catch (_) {
       errors.destination = "Please enter a valid URL";
     }
 
-    // Back-half validation
     if (state.backHalf && !/^[a-zA-Z0-9_-]*$/.test(state.backHalf)) {
       errors.backHalf =
         "Only letters, numbers, hyphens and underscores allowed";
@@ -60,6 +59,31 @@ const CreateOrUpdateUrl = () => {
 
     setState((prev) => ({ ...prev, errors }));
     return Object.keys(errors).length === 0;
+  };
+
+  useEffect(() => {
+    if (id) fetchUrlById(id);
+  }, [id]);
+
+  const fetchUrlById = async (id: number) => {
+    try {
+      startLoading();
+      const resonse = await getUrlById(id);
+      if (resonse.success) {
+        const data = resonse.data;
+        setState((prev: any) => ({
+          ...prev,
+          destination: data.originalUrl,
+          title: data.title,
+          shortenUrl: data.shortenUrl,
+          backHalf: data.suffix,
+        }));
+      }
+    } catch (error) {
+      console.error("error : ", error);
+    } finally {
+      stopLoading();
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -97,6 +121,39 @@ const CreateOrUpdateUrl = () => {
     );
   };
 
+  const handleOnUpdate = async (id: number) => {
+    if (!validate()) return;
+
+    openDialog(
+      "Update Link",
+      "Are you sure you want to update this short URL?",
+      async () => {
+        startLoading(); // This will now only run after confirmation
+        try {
+          const payload = {
+            id: id,
+            title: state.title,
+            suffix: state.backHalf,
+          };
+
+          const response = await updateUrl(payload);
+          if (response.success) {
+            navigate(-1);
+          }
+        } catch (error) {
+          console.error("Submission error:", error);
+        } finally {
+          stopLoading(); // Ensure loading stops in all cases
+        }
+      },
+      {
+        confirmText: "Confirm",
+        cancelText: "Cancel",
+        icon: CheckIcon,
+      }
+    );
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setState((prev) => ({
@@ -115,7 +172,7 @@ const CreateOrUpdateUrl = () => {
         variant="h4"
         className="tracking-wide font-bold text-slate-700 text-left"
       >
-        Create a link
+        {id ? "Update URL" : "Create a link"}
       </Typography>
       <Typography
         variant="body2"
@@ -147,6 +204,7 @@ const CreateOrUpdateUrl = () => {
               required
               error={!!state.errors.destination}
               helperText={state.errors.destination}
+              disabled={id}
             />
           </Grid>
 
@@ -169,19 +227,46 @@ const CreateOrUpdateUrl = () => {
             />
           </Grid>
 
+          {id && (
+            <Grid item xs={12}>
+              <Typography
+                variant="subtitle2"
+                gutterBottom
+                className="text-start text-slate-700 text-2xl font-semibold"
+              >
+                Current Shorten URL
+              </Typography>
+              <TextField
+                fullWidth
+                name="title"
+                value={state.shortenUrl}
+                disabled
+              />
+            </Grid>
+          )}
+
           <Grid item xs={4}>
             <Typography
               variant="subtitle2"
               gutterBottom
               className="text-start text-slate-700 text-2xl font-semibold"
             >
-              domain
+              Domain
             </Typography>
             <TextField fullWidth name="title" value={state.domain} disabled />
-            <Typography variant="subtitle2" gutterBottom></Typography>
           </Grid>
 
-          <Grid item xs={8}>
+          <Grid item xs={1}>
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+              className="text-start text-slate-700 text-2xl font-semibold"
+            >
+              /
+            </Typography>
+          </Grid>
+
+          <Grid item xs={7}>
             <Typography
               variant="subtitle2"
               gutterBottom
@@ -219,12 +304,28 @@ const CreateOrUpdateUrl = () => {
 
           <Grid item xs={12} sx={{ mt: 3 }}>
             <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
-              <Button variant="outlined" color="primary" type="button">
-                Cancel
+              <Button
+                variant="outlined"
+                color="primary"
+                type="button"
+                onClick={() => navigate(-1)}
+              >
+                Back
               </Button>
-              <Button type="submit" variant="contained" color="primary">
-                Create Link
-              </Button>
+              {id ? (
+                <Button
+                  type="button"
+                  variant="contained"
+                  color="primary"
+                  onClick={() => handleOnUpdate(id)}
+                >
+                  Update Link
+                </Button>
+              ) : (
+                <Button type="submit" variant="contained" color="primary">
+                  Create Link
+                </Button>
+              )}
             </Box>
           </Grid>
         </Grid>
