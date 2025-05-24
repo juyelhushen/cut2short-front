@@ -18,7 +18,7 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useAuth } from "../../auth/AuthProvider";
 import loginImage from "../../assets/loginimg.png";
 import { motion } from "framer-motion";
-import linkIcon from '../../assets/whiteLogo.png'
+import linkIcon from "../../assets/whiteLogo.png";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -48,11 +48,23 @@ const Login = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:8080/oauth2/authorization/google";
+    window.location.href =
+      "https://cut2short-backend.onrender.com/oauth2/authorization/google";
   };
 
+  // const handleGithubLogin = () => {
+  //   window.location.href =
+  //     "https://cut2short-backend.onrender.com/oauth2/authorization/github";
+  // };
+
+  //   const handleGoogleLogin = () => {
+  //   window.location.href =
+  //     "http://localhost:8080/oauth2/authorization/google";
+  // };
+
   const handleGithubLogin = () => {
-    window.location.href = "http://localhost:8080/oauth2/authorization/github";
+    window.location.href =
+      "https://cut2short-backend.onrender.com/oauth2/authorization/github";
   };
 
   return (
@@ -89,7 +101,7 @@ const Login = () => {
           style={{ width: 80, height: 80, marginRight: 8 }}
         />
       </Box>
-      
+
       <motion.div
         initial={{ opacity: 0, x: -100 }}
         animate={{ opacity: 1, x: 0 }}
@@ -101,7 +113,7 @@ const Login = () => {
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          alignItems:'center',
+          alignItems: "center",
           background: "linear-gradient(135deg, #1e293b, #0f172a)",
           color: "white",
         }}
@@ -189,7 +201,7 @@ const Login = () => {
               Sign in with GitHub
             </Button>
 
-            <Divider sx={{ my: 4, borderColor: "rgba(255,255,255,0.2)"  }}>
+            <Divider sx={{ my: 4, borderColor: "rgba(255,255,255,0.2)" }}>
               or
             </Divider>
 
