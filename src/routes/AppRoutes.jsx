@@ -16,7 +16,6 @@ const AppRoutes = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/oauth2/callback" element={<OAuth2Callback />} />
-
         <Route
           path="/dashboard/*"
           element={
@@ -31,4 +30,3 @@ const AppRoutes = () => {
 };
 
 export default AppRoutes;
-
