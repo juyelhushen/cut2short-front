@@ -95,7 +95,7 @@ const CreateOrUpdateUrl = () => {
       "Create Short Link",
       "Are you sure you want to create this short URL?",
       async () => {
-        startLoading(); // This will now only run after confirmation
+        startLoading();
         try {
           const payload = {
             originalUrl: state.destination,
@@ -110,7 +110,7 @@ const CreateOrUpdateUrl = () => {
         } catch (error) {
           console.error("Submission error:", error);
         } finally {
-          stopLoading(); // Ensure loading stops in all cases
+          stopLoading();
         }
       },
       {
@@ -128,7 +128,7 @@ const CreateOrUpdateUrl = () => {
       "Update Link",
       "Are you sure you want to update this short URL?",
       async () => {
-        startLoading(); // This will now only run after confirmation
+        startLoading(); 
         try {
           const payload = {
             id: id,
@@ -143,7 +143,7 @@ const CreateOrUpdateUrl = () => {
         } catch (error) {
           console.error("Submission error:", error);
         } finally {
-          stopLoading(); // Ensure loading stops in all cases
+          stopLoading();
         }
       },
       {
