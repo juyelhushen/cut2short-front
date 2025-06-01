@@ -21,8 +21,8 @@ const OAuth2Callback = () => {
         withCredentials: true,
       });
 
-      const { userId, name, username, token } = response.data.data;
-      login({ userId, name, username, token });
+      const { userId, name, username, token, profile } = response.data.data;
+      login({ userId, name, username, token, profile });
       navigate("/dashboard");
     } catch (error) {
       console.error("Error during OAuth2 callback:", error);
