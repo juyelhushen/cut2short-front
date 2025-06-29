@@ -59,3 +59,12 @@ export const updateUrl = async (payload) => {
     console.error("error in fetching urls", error);
   }
 };
+
+export const generateQRCode = async (data) => {
+  try {
+    const response = await AxiosInstance.post(`/api/v1/url/generate`, data);
+    return response.data;
+  } catch (error) {
+    console.error("error in fetching urls", error);
+  }
+};
