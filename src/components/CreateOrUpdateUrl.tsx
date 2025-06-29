@@ -8,12 +8,14 @@ import {
   InputAdornment,
   Divider,
   Grid,
+  Tooltip,
 } from "@mui/material";
 import { createUrlShort, getUrlById, updateUrl } from "../services/UrlService";
 import useConfirmation from "../hooks/useConfirmation";
 import useLoading from "../hooks/useLoading";
 import CheckIcon from "@mui/icons-material/Check";
 import { useParams, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion"; // Import Framer Motion
 
 interface FormState {
   destination: string;
@@ -24,8 +26,8 @@ interface FormState {
     destination?: string;
     backHalf?: string;
   };
-  isSubmitting: false;
-  shortenUrl: "";
+  isSubmitting: boolean; // Changed to boolean
+  shortenUrl: string;
 }
 
 const CreateOrUpdateUrl = () => {
@@ -54,7 +56,7 @@ const CreateOrUpdateUrl = () => {
 
     if (state.backHalf && !/^[a-zA-Z0-9_-]*$/.test(state.backHalf)) {
       errors.backHalf =
-        "Only letters, numbers, hyphens and underscores allowed";
+        "Only letters, numbers, hyphens, and underscores allowed";
     }
 
     setState((prev) => ({ ...prev, errors }));
@@ -65,12 +67,12 @@ const CreateOrUpdateUrl = () => {
     if (id) fetchUrlById(id);
   }, [id]);
 
-  const fetchUrlById = async (id: number) => {
+  const fetchUrlById = async (id: string) => {
     try {
       startLoading();
-      const resonse = await getUrlById(id);
-      if (resonse.success) {
-        const data = resonse.data;
+      const response = await getUrlById(Number(id));
+      if (response.success) {
+        const data = response.data;
         setState((prev: any) => ({
           ...prev,
           destination: data.originalUrl,
@@ -80,7 +82,7 @@ const CreateOrUpdateUrl = () => {
         }));
       }
     } catch (error) {
-      console.error("error : ", error);
+      console.error("Error:", error);
     } finally {
       stopLoading();
     }
@@ -102,7 +104,6 @@ const CreateOrUpdateUrl = () => {
             title: state.title,
             suffix: state.backHalf,
           };
-
           const response = await createUrlShort(payload);
           if (response.success) {
             navigate(-1);
@@ -121,21 +122,20 @@ const CreateOrUpdateUrl = () => {
     );
   };
 
-  const handleOnUpdate = async (id: number) => {
+  const handleOnUpdate = async (id: string) => {
     if (!validate()) return;
 
     openDialog(
       "Update Link",
       "Are you sure you want to update this short URL?",
       async () => {
-        startLoading(); 
+        startLoading();
         try {
           const payload = {
-            id: id,
+            id: Number(id),
             title: state.title,
             suffix: state.backHalf,
           };
-
           const response = await updateUrl(payload);
           if (response.success) {
             navigate(-1);
@@ -163,174 +163,256 @@ const CreateOrUpdateUrl = () => {
     }));
   };
 
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  };
+  const fieldVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+  };
+
   return (
-    <Box sx={{ maxWidth: 800, mx: "auto", p: 3 }}>
-      <ConfirmationDialog />
-      <LoadingComponent />
-      <Typography
-        gutterBottom
-        variant="h4"
-        className="tracking-wide font-bold text-slate-700 text-left"
-      >
-        {id ? "Update URL" : "Create a link"}
-      </Typography>
-      <Typography
-        variant="body2"
-        gutterBottom
-        className="text-start text-yellow-800"
-      >
-        You can create 4 more links this month. Upgrade for more.
-      </Typography>
+    <motion.div
+      className="min-h-screen bg-gradient-to-br from-gray-100 to-white"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <Box sx={{ maxWidth: 800, mx: "auto", p: 4, mt: 4 }}>
+        <ConfirmationDialog />
+        <LoadingComponent />
 
-      <Divider sx={{ my: 3 }} />
+        <motion.div variants={fieldVariants}>
+          <Typography
+            variant="h4"
+            gutterBottom
+            className="tracking-wide font-bold text-slate-800 text-left"
+          >
+            {id ? "Update URL" : "Create a Link"}
+          </Typography>
+          <Typography
+            variant="body2"
+            gutterBottom
+            className="text-yellow-700 text-left font-medium"
+          >
+            You can create 4 more links this month. Upgrade for more.
+          </Typography>
+        </motion.div>
 
-      <form onSubmit={handleSubmit}>
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <Typography
-              variant="subtitle2"
-              gutterBottom
-              className="text-start text-slate-700 text-2xl font-semibold"
-            >
-              Destination
-            </Typography>
-            <TextField
-              fullWidth
-              name="destination"
-              value={state.destination}
-              onChange={handleChange}
-              placeholder="https://example.com/my-long-url"
-              variant="outlined"
-              required
-              error={!!state.errors.destination}
-              helperText={state.errors.destination}
-              disabled={id}
-            />
-          </Grid>
+        <Divider sx={{ my: 4, borderColor: "gray-300" }} />
 
-          <Grid item xs={12}>
-            <Typography
-              variant="subtitle2"
-              gutterBottom
-              className="text-start text-slate-700 text-2xl font-semibold"
-            >
-              Title (optional)
-            </Typography>
-            <TextField
-              fullWidth
-              name="title"
-              value={state.title}
-              onChange={handleChange}
-              variant="outlined"
-              inputProps={{ maxLength: 50 }}
-              helperText="Max 50 characters"
-            />
-          </Grid>
-
-          {id && (
+        <motion.form
+          onSubmit={handleSubmit}
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <Grid container spacing={3}>
             <Grid item xs={12}>
-              <Typography
-                variant="subtitle2"
-                gutterBottom
-                className="text-start text-slate-700 text-2xl font-semibold"
-              >
-                Current Shorten URL
-              </Typography>
-              <TextField
-                fullWidth
-                name="title"
-                value={state.shortenUrl}
-                disabled
-              />
-            </Grid>
-          )}
-
-          <Grid item xs={4}>
-            <Typography
-              variant="subtitle2"
-              gutterBottom
-              className="text-start text-slate-700 text-2xl font-semibold"
-            >
-              Domain
-            </Typography>
-            <TextField fullWidth name="title" value={state.domain} disabled />
-          </Grid>
-
-          <Grid item xs={1}>
-            <Typography
-              variant="subtitle2"
-              gutterBottom
-              className="text-start text-slate-700 text-2xl font-semibold"
-            >
-              /
-            </Typography>
-          </Grid>
-
-          <Grid item xs={7}>
-            <Typography
-              variant="subtitle2"
-              gutterBottom
-              className="text-start text-slate-700 text-2xl font-semibold"
-            >
-              Custom back-half (optional)
-            </Typography>
-            <TextField
-              fullWidth
-              name="backHalf"
-              value={state.backHalf}
-              onChange={handleChange}
-              variant="outlined"
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderTopLeftRadius: 0,
-                  borderBottomLeftRadius: 0,
-                },
-              }}
-              error={!!state.errors.backHalf}
-              helperText={
-                state.errors.backHalf || (
-                  <Typography
-                    variant="caption"
-                    display="block"
-                    className="text-start text-yellow-950"
-                  >
-                    Only letters, numbers, hyphens and underscores allowed. You
-                    can create 2 more custom back-halves this month.
-                  </Typography>
-                )
-              }
-            />
-          </Grid>
-
-          <Grid item xs={12} sx={{ mt: 3 }}>
-            <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
-              <Button
-                variant="outlined"
-                color="primary"
-                type="button"
-                onClick={() => navigate(-1)}
-              >
-                Back
-              </Button>
-              {id ? (
-                <Button
-                  type="button"
-                  variant="contained"
-                  color="primary"
-                  onClick={() => handleOnUpdate(id)}
+              <motion.div variants={fieldVariants}>
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  className="text-slate-700 font-semibold"
                 >
-                  Update Link
-                </Button>
-              ) : (
-                <Button type="submit" variant="contained" color="primary">
-                  Create Link
-                </Button>
-              )}
-            </Box>
+                  Destination
+                </Typography>
+                <TextField
+                  fullWidth
+                  name="destination"
+                  value={state.destination}
+                  onChange={handleChange}
+                  placeholder="https://example.com/my-long-url"
+                  variant="outlined"
+                  required
+                  error={!!state.errors.destination}
+                  helperText={state.errors.destination}
+                  disabled={!!id}
+                  InputProps={{
+                    sx: {
+                      "& fieldset": { borderColor: "gray-300" },
+                      "&:hover fieldset": { borderColor: "blue-500" },
+                      "&.Mui-focused fieldset": { borderColor: "blue-600" },
+                    },
+                  }}
+                />
+              </motion.div>
+            </Grid>
+
+            <Grid item xs={12}>
+              <motion.div variants={fieldVariants}>
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  className="text-slate-700 font-semibold"
+                >
+                  Title (optional)
+                </Typography>
+                <TextField
+                  fullWidth
+                  name="title"
+                  value={state.title}
+                  onChange={handleChange}
+                  variant="outlined"
+                  inputProps={{ maxLength: 50 }}
+                  helperText="Max 50 characters"
+                  InputProps={{
+                    sx: {
+                      "& fieldset": { borderColor: "gray-300" },
+                      "&:hover fieldset": { borderColor: "blue-500" },
+                    },
+                  }}
+                />
+              </motion.div>
+            </Grid>
+
+            {id && (
+              <Grid item xs={12}>
+                <motion.div variants={fieldVariants}>
+                  <Typography
+                    variant="h6"
+                    gutterBottom
+                    className="text-slate-700 font-semibold"
+                  >
+                    Current Shorten URL
+                  </Typography>
+                  <Tooltip title="This URL cannot be edited">
+                    <TextField
+                      fullWidth
+                      name="shortenUrl"
+                      value={state.shortenUrl}
+                      disabled
+                      variant="outlined"
+                      InputProps={{
+                        sx: {
+                          "& fieldset": { borderColor: "gray-400" },
+                        },
+                      }}
+                    />
+                  </Tooltip>
+                </motion.div>
+              </Grid>
+            )}
+
+            <Grid item xs={12} sm={4}>
+              <motion.div variants={fieldVariants}>
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  className="text-slate-700 font-semibold"
+                >
+                  Domain
+                </Typography>
+                <Tooltip title="Domain is fixed for this project">
+                  <TextField
+                    fullWidth
+                    name="domain"
+                    value={state.domain}
+                    disabled
+                    variant="outlined"
+                    InputProps={{
+                      sx: {
+                        "& fieldset": { borderColor: "gray-400" },
+                      },
+                    }}
+                  />
+                </Tooltip>
+              </motion.div>
+            </Grid>
+
+            <Grid item xs={12} sm={8}>
+              <motion.div variants={fieldVariants}>
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  className="text-slate-700 font-semibold"
+                >
+                  Custom Back-Half (optional)
+                </Typography>
+                <TextField
+                  fullWidth
+                  name="backHalf"
+                  value={state.backHalf}
+                  onChange={handleChange}
+                  variant="outlined"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">/</InputAdornment>
+                    ),
+                    sx: {
+                      "& fieldset": { borderColor: "gray-300" },
+                      "&:hover fieldset": { borderColor: "blue-500" },
+                      "&.Mui-focused fieldset": { borderColor: "blue-600" },
+                    },
+                  }}
+                  error={!!state.errors.backHalf}
+                  helperText={
+                    state.errors.backHalf || (
+                      <Typography
+                        variant="caption"
+                        className="text-yellow-800"
+                      >
+                        Only letters, numbers, hyphens, and underscores allowed.
+                        2 custom back-halves remaining this month.
+                      </Typography>
+                    )
+                  }
+                />
+              </motion.div>
+            </Grid>
+
+            <Grid item xs={12} sx={{ mt: 4 }}>
+              <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    onClick={() => navigate(-1)}
+                    sx={{
+                      borderColor: "gray-400",
+                      "&:hover": { borderColor: "gray-600", backgroundColor: "gray-50" },
+                    }}
+                  >
+                    Back
+                  </Button>
+                </motion.div>
+                {id ? (
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => handleOnUpdate(id)}
+                      sx={{
+                        background: "linear-gradient(90deg, #4B5EFC 0%, #8F6ED5 100%)",
+                        "&:hover": { background: "linear-gradient(90deg, #3D4EDA 0%, #7A50C0 100%)" },
+                      }}
+                    >
+                      Update Link
+                    </Button>
+                  </motion.div>
+                ) : (
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      color="primary"
+                      sx={{
+                        background: "linear-gradient(90deg, #4B5EFC 0%, #8F6ED5 100%)",
+                        "&:hover": { background: "linear-gradient(90deg, #3D4EDA 0%, #7A50C0 100%)" },
+                      }}
+                    >
+                      Create Link
+                    </Button>
+                  </motion.div>
+                )}
+              </Box>
+            </Grid>
           </Grid>
-        </Grid>
-      </form>
-    </Box>
+        </motion.form>
+      </Box>
+    </motion.div>
   );
 };
 
