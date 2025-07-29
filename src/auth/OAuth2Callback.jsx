@@ -4,8 +4,8 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { useAuth } from "./AuthProvider";
 
-const API_BASE_URL = "http://localhost:8080";
-// const API_BASE_URL = "https://cut2short-backend.onrender.com";
+// const API_BASE_URL = "http://localhost:8080";
+const API_BASE_URL = "https://cut2short-backend.onrender.com";
 
 const OAuth2Callback = () => {
   const navigate = useNavigate();
