@@ -68,3 +68,13 @@ export const generateQRCode = async (data) => {
     console.error("error in fetching urls", error);
   }
 };
+
+
+export const getQRCodeList = async (userId) => {
+  try {
+    const response = await AxiosInstance.get(`/api/v1/url/qrcode/list/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error("error in fetching urls", error);
+  }
+};

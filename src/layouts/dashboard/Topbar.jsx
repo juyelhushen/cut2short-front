@@ -37,8 +37,14 @@ const TopBar = () => {
     }
   }, [profile]);
 
+
+
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
+
+
+  console.log("profile", profile);
+  
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);

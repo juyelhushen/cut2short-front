@@ -1,192 +1,151 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
   TextField,
   Button,
-  Grid,
-  Card,
-  CardContent,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Divider,
+  CircularProgress,
+  Paper,
+  InputAdornment,
+  Link,
 } from "@mui/material";
 import { motion } from "framer-motion";
-import QrCodeIcon from "@mui/icons-material/QrCode";
+import QRCode from "qrcode";
 import { toast } from "react-toastify";
-import useLoading from "/src/hooks/useLoading";
 import { generateQRCode } from "/src/services/UrlService";
+import QRCodeModal from "/src/shared/QRCodeModal";
 
 const GenerateQRForm = () => {
-  const { LoadingComponent, startLoading, stopLoading } = useLoading();
-  const [formData, setFormData] = useState({
-    url: "",
-    title: "",
-  });
-  const [qrCodeUrl, setQrCodeUrl] = useState(null);
-  const [openModal, setOpenModal] = useState(false);
+  const [title, setTitle] = useState("");
+  const [url, setUrl] = useState("");
+  const [qrCode, setQrCode] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleGenerateQR = async () => {
-    if (!formData.url || !formData.title) {
-      toast.error("Please fill in both URL and title.");
+  const handleGenerate = async () => {
+    if (!url) {
+      toast.error("Please enter a valid URL");
       return;
     }
 
-    startLoading();
+    setIsGenerating(true);
+    setShowModal(true);
     try {
-      const response = await generateQRCode({
-        title: formData.title,
-        url: formData.url,
+      const qrDataUrl = await QRCode.toDataURL(url, {
+        width: 300,
+        margin: 2,
+        color: {
+          dark: "#000000",
+          light: "#FFFFFF",
+        },
       });
-      const blob = new Blob([response.data], { type: "image/png" });
-      const url = URL.createObjectURL(blob);
-      setQrCodeUrl(url);
-      setOpenModal(true); // Open modal with the QR code
-      toast.success("QR code generated successfully!");
-    } catch (error) {
-      console.error("Error generating QR code:", error);
-      toast.error("Failed to generate QR code.");
+      setQrCode(qrDataUrl);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to generate QR code");
     } finally {
-      stopLoading();
+      setIsGenerating(false);
     }
   };
 
-  const handleDownloadQR = () => {
-    if (qrCodeUrl) {
-      const link = document.createElement("a");
-      link.href = qrCodeUrl;
-      link.download = `qrcode_${formData.title.replace(/ /g, "_")}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+  const handleConfirmSave = async () => {
+    setIsSaving(true);
+    try {
+      const base64Data = qrCode.split(",")[1];
+      const payload = {
+        title: title || "Untitled QR Code",
+        url: url,
+        qrCodeBase64: base64Data,
+      };
+      await generateQRCode(payload);
+      toast.success("QR code saved successfully!");
+      setShowModal(false);
+      navigate(-1);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to save QR code");
+    } finally {
+      setIsSaving(false);
     }
-  };
-
-  const handleCloseModal = () => {
-    setOpenModal(false);
-    // Optionally revoke the object URL to free memory
-    if (qrCodeUrl) URL.revokeObjectURL(qrCodeUrl);
   };
 
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   };
-  const fieldVariants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-  };
 
   return (
     <motion.div
-      className="min-h-screen bg-gradient-to-br from-gray-100 to-white"
-      variants={containerVariants}
       initial="hidden"
       animate="visible"
+      variants={containerVariants}
+      className="min-h-screen bg-gray-50"
     >
-      <Box sx={{ maxWidth: 800, mx: "auto", p: 4, mt: 4 }}>
-        <LoadingComponent />
-        <motion.div variants={fieldVariants}>
+      <Box sx={{ maxWidth: 600, mx: "auto", p: 4 }}>
+        <Paper elevation={3} sx={{ p: 4, borderRadius: "12px" }}>
           <Typography
             variant="h4"
             gutterBottom
-            className="tracking-wide font-bold text-slate-800 text-left"
+            fontWeight="bold"
+            color="text.primary"
           >
-            Generate QR Code
+            Create New QR Code
           </Typography>
-          <Typography
-            variant="body2"
-            gutterBottom
-            className="text-yellow-700 text-left font-medium"
-          >
-            Create a QR code for any URL with a custom title.
+
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+            Generate a QR code for any website URL
           </Typography>
-        </motion.div>
 
-        <Divider sx={{ my: 4, borderColor: "gray-300" }} />
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            <TextField
+              label="Title (Optional)"
+              variant="outlined"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="My Awesome QR Code"
+              fullWidth
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "12px",
+                },
+              }}
+            />
 
-        <motion.form
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleGenerateQR();
-          }}
-        >
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <motion.div variants={fieldVariants}>
-                <Typography
-                  variant="h6"
-                  gutterBottom
-                  className="text-slate-700 font-semibold"
-                >
-                  URL
-                </Typography>
-                <TextField
-                  fullWidth
-                  name="url"
-                  value={formData.url}
-                  onChange={handleChange}
-                  placeholder="https://example.com"
-                  variant="outlined"
-                  required
-                  InputProps={{
-                    sx: {
-                      "& fieldset": { borderColor: "gray-300" },
-                      "&:hover fieldset": { borderColor: "blue-500" },
-                      "&.Mui-focused fieldset": { borderColor: "blue-600" },
-                    },
-                  }}
-                />
-              </motion.div>
-            </Grid>
+            <TextField
+              label="Website URL"
+              variant="outlined"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://example.com"
+              required
+              fullWidth
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Link color="inherit" />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "12px",
+                },
+              }}
+            />
 
-            <Grid item xs={12}>
-              <motion.div variants={fieldVariants}>
-                <Typography
-                  variant="h6"
-                  gutterBottom
-                  className="text-slate-700 font-semibold"
-                >
-                  Title
-                </Typography>
-                <TextField
-                  fullWidth
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                  placeholder="Enter a title"
-                  variant="outlined"
-                  required
-                  InputProps={{
-                    sx: {
-                      "& fieldset": { borderColor: "gray-300" },
-                      "&:hover fieldset": { borderColor: "blue-500" },
-                    },
-                  }}
-                />
-              </motion.div>
-            </Grid>
-
-            <Grid item xs={12} sx={{ mt: 3 }}>
+            <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
               <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
               >
                 <Button
-                  type="submit"
                   variant="contained"
-                  color="primary"
-                  startIcon={<QrCodeIcon />}
+                  onClick={handleGenerate}
+                  disabled={!url || isGenerating}
+                  size="large"
                   sx={{
                     background:
                       "linear-gradient(90deg, #4B5EFC 0%, #8F6ED5 100%)",
@@ -194,72 +153,37 @@ const GenerateQRForm = () => {
                       background:
                         "linear-gradient(90deg, #3D4EDA 0%, #7A50C0 100%)",
                     },
+                    borderRadius: "12px",
+                    px: 4,
+                    py: 1.5,
+                    textTransform: "none",
+                    fontSize: "1rem",
+                    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
                   }}
+                  startIcon={
+                    isGenerating ? (
+                      <CircularProgress size={20} color="inherit" />
+                    ) : null
+                  }
                 >
-                  Generate QR Code
+                  {isGenerating ? "Generating..." : "Generate QR Code"}
                 </Button>
               </motion.div>
-            </Grid>
-          </Grid>
-        </motion.form>
+            </Box>
+          </Box>
+        </Paper>
 
-        <Dialog
-          open={openModal}
-          onClose={handleCloseModal}
-          maxWidth="sm"
-          fullWidth
-          PaperProps={{
-            sx: {
-              borderRadius: 2,
-              background: "linear-gradient(135deg, #F5F7FA 0%, #E0E7FF 100%)",
-            },
-          }}
-        >
-          <DialogTitle className="text-slate-800 font-bold text-center">
-            Generated QR Code
-          </DialogTitle>
-          <DialogContent>
-            {qrCodeUrl && (
-              <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
-                <img
-                  src={qrCodeUrl}
-                  alt="Generated QR Code"
-                  style={{ width: 250, height: 250 }}
-                />
-              </Box>
-            )}
-            <Typography
-              variant="body2"
-              className="text-center text-gray-600 mt-2"
-            >
-              Title: {formData.title}
-            </Typography>
-          </DialogContent>
-          <DialogActions sx={{ justifyContent: "center", pb: 2 }}>
-            <Button
-              onClick={handleDownloadQR}
-              variant="outlined"
-              color="primary"
-              sx={{ mr: 2 }}
-            >
-              Download
-            </Button>
-            <Button
-              onClick={handleCloseModal}
-              variant="contained"
-              color="primary"
-              sx={{
-                background: "linear-gradient(90deg, #4B5EFC 0%, #8F6ED5 100%)",
-                "&:hover": {
-                  background:
-                    "linear-gradient(90deg, #3D4EDA 0%, #7A50C0 100%)",
-                },
-              }}
-            >
-              Close
-            </Button>
-          </DialogActions>
-        </Dialog>
+        {showModal && (
+          <QRCodeModal
+            qrCode={qrCode}
+            title={title || "Untitled QR Code"}
+            url={url}
+            loading={isGenerating}
+            saving={isSaving}
+            onConfirm={handleConfirmSave}
+            onCancel={() => setShowModal(false)}
+          />
+        )}
       </Box>
     </motion.div>
   );

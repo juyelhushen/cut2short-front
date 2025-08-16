@@ -125,7 +125,7 @@ const Links = () => {
                     {url.title}
                   </h3>
                   <a
-                    href={`https://${url.shortenUrl}`}
+                    href={`${url.shortenUrl}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-800 font-medium block transition-colors duration-200"
