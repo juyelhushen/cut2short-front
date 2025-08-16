@@ -17,13 +17,12 @@ import {
   faGoogle,
   faGithub,
 } from "@fortawesome/free-brands-svg-icons";
-import { FcGoogle } from "react-icons/fc"; // Import the Google icon
-import { FaFacebookF, FaTwitter, FaGithub } from "react-icons/fa"; // Other icons
+import { FcGoogle } from "react-icons/fc";
+import { FaFacebookF, FaTwitter, FaGithub } from "react-icons/fa";
 import { Form, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { signup } from "../../services/UserService";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-// import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -66,24 +65,12 @@ const SignUp = () => {
     }));
   };
 
-  // const handleGoogleLogin = () => {
-  //   window.location.href = "http://localhost:8080/oauth2/authorization/google";
-  //   console.log('juyal')
-
-  // };
-
-  // const handleGithubLogin = () => {
-  //   window.location.href = "http://localhost:8080/oauth2/authorization/github";
-  // };
-
   const handleGoogleLogin = () => {
-    window.location.href =
-      "https://cut2short-backend.onrender.com/oauth2/authorization/google";
+    window.location.href = import.meta.env.VITE_GOOGLE_OAUTH_URL;
   };
 
   const handleGithubLogin = () => {
-    window.location.href =
-      "https://cut2short-backend.onrender.com/oauth2/authorization/github";
+    window.location.href = import.meta.env.VITE_GITHUB_OAUTH_URL;
   };
 
   return (
