@@ -13,7 +13,9 @@ import urlImg from "../../assets/url.jpg";
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
+  
   const navigate = useNavigate();
+  
   const features = [
     {
       title: "Make it short",

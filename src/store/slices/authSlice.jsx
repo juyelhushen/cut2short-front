@@ -3,7 +3,6 @@ import { createSlice } from "@reduxjs/toolkit";
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    // token: localStorage.getItem("token") || null,
     userId: "",
     name: "",
     username: "",
@@ -15,14 +14,12 @@ const authSlice = createSlice({
       state.userId = userId;
       state.name = name;
       state.username = username;
-      // state.token = token;
       state.profile = profile;
     },
     clearUserData: (state) => {
       state.userId = null;
       state.name = null;
       state.username = null;
-      // state.token = null;
       state.profile = null;
     },
   },
