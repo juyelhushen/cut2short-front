@@ -18,7 +18,8 @@ import {
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-// import { clearUserData } from "src/store/slices/authSlice";
+import { clearUserData } from "/src/store/slices/authSlice";
+import { clearSeassionCookie } from "/src/services/UserService";
 
 const TopBar = () => {
   const navigate = useNavigate();
@@ -37,14 +38,10 @@ const TopBar = () => {
     }
   }, [profile]);
 
-
-
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
 
-
   console.log("profile", profile);
-  
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -54,9 +51,9 @@ const TopBar = () => {
     setAnchorEl(null);
   };
 
-  const logout = () => {
-    // dispatch(clearUserData());
-    localStorage.clear();
+  const logout = async () => {
+    await clearSeassionCookie();
+    dispatch(clearUserData());
     navigate("/");
   };
 

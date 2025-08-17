@@ -9,7 +9,6 @@ import QRCode from "/src/modules/dashboard/QRCode";
 import GenerateQRForm from "@components/GenerateQRForm";
 import MainContent from "./dashboard/MainContent ";
 
-
 const DashboardLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 

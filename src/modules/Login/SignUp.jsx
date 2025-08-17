@@ -22,9 +22,11 @@ import { FaFacebookF, FaTwitter, FaGithub } from "react-icons/fa";
 import { Form, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { signup } from "../../services/UserService";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { Login, Visibility, VisibilityOff } from "@mui/icons-material";
+import { useAuth } from "/src/auth/AuthProvider";
 
 const SignUp = () => {
+  const { login } = useAuth();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -48,8 +50,9 @@ const SignUp = () => {
 
   const handleSignUp = async () => {
     try {
-      const response = await signup(formData, dispatch);
+      const response = await signup(formData);
       if (response.success) {
+        login(response.data);
         navigate("/dashboard");
       }
     } catch (error) {

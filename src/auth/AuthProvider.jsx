@@ -40,15 +40,11 @@ const AuthProvider = ({ children }) => {
   };
 
   const login = (userData) => {
-    localStorage.setItem("token", userData.token);
     dispatch(setUserData(userData));
     setIsAuthenticated(true);
   };
 
   const logout = () => {
-    localStorage.removeItem("userId");
-    localStorage.removeItem("name");
-    localStorage.removeItem("username");
     dispatch(setUserData(null));
     setIsAuthenticated(false);
   };
