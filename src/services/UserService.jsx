@@ -4,7 +4,7 @@ import { setUserData } from "../store/slices/authSlice";
 
 export const getUserInfo = async () => {
   try {
-    const response = await AxiosInstance.get("/api/me", {
+    const response = await AxiosInstance.get("/api/user/me", {
       withCredentials: true,
     });
     return response.data;
