@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import useLoading from "../hooks/useLoading";
-import { getUserInfo } from "../services/UserService";
-import { setUserData } from "../store/slices/authSlice";
+import { clearUserData, setUserData } from "../store/slices/authSlice";
+import { getUserInfo } from "/src/services/UserService";
 
 const AuthContext = createContext();
 
@@ -19,20 +19,23 @@ const AuthProvider = ({ children }) => {
   const checkAuth = async () => {
     try {
       startLoading();
-      const token = localStorage.getItem("token");
-      if (token) {
-        const userData = await getUserInfo();
-        if (userData) {
-          dispatch(setUserData(userData));
-          setIsAuthenticated(true);
-        }
+      const userData = await getUserInfo();
+      console.log("userData", userData);
+      
+      if (userData) {
+        dispatch(setUserData(userData));
+        setIsAuthenticated(true);
+      } else {
+        dispatch(clearUserData());
+        setIsAuthenticated(false);
       }
     } catch (error) {
       console.error("Auth check failed:", error);
-      logout();
+      dispatch(clearUserData());
+      setIsAuthenticated(false);
     } finally {
       setAuthChecked(true);
-      startLoading();
+      stopLoading();
     }
   };
 
@@ -43,7 +46,6 @@ const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
     localStorage.removeItem("userId");
     localStorage.removeItem("name");
     localStorage.removeItem("username");

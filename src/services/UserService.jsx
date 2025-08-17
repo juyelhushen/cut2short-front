@@ -3,11 +3,14 @@ import { AxiosInstance } from "./AxiosInstance";
 import { setUserData } from "../store/slices/authSlice";
 
 export const getUserInfo = async () => {
-  AxiosInstance.get("/api/user/info", { withCredentials: true })
-    .then((res) => {
-      return res.data;
-    })
-    .catch((error) => console.log("error occured : ", error));
+  try {
+    const response = await AxiosInstance.get("/api/me", {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("errror in fetching userdata", error);
+  }
 };
 
 export const signup = async (data, dispatch) => {
