@@ -4,18 +4,24 @@ import {
   Typography,
   TextField,
   Button,
-  MenuItem,
-  InputAdornment,
   Divider,
-  Grid,
   Tooltip,
+  Paper,
+  InputAdornment,
+  Chip,
+  Stack,
+  IconButton,
 } from "@mui/material";
 import { createUrlShort, getUrlById, updateUrl } from "../services/UrlService";
 import useConfirmation from "../hooks/useConfirmation";
 import useLoading from "../hooks/useLoading";
 import CheckIcon from "@mui/icons-material/Check";
 import { useParams, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion"; // Import Framer Motion
+import { motion } from "framer-motion";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import LinkIcon from "@mui/icons-material/Link";
+import EditIcon from "@mui/icons-material/Edit";
+import AddLinkIcon from "@mui/icons-material/AddLink";
 
 interface FormState {
   destination: string;
@@ -26,7 +32,7 @@ interface FormState {
     destination?: string;
     backHalf?: string;
   };
-  isSubmitting: boolean; // Changed to boolean
+  isSubmitting: boolean;
   shortenUrl: string;
 }
 
@@ -163,62 +169,92 @@ const CreateOrUpdateUrl = () => {
     }));
   };
 
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(state.shortenUrl);
+  };
+
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   };
+
   const fieldVariants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+    hidden: { opacity: 0, x: -10 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.3 } },
+  };
+
+  const buttonVariants = {
+    hover: { scale: 1.03 },
+    tap: { scale: 0.98 },
   };
 
   return (
-    <motion.div
-      className="min-h-screen bg-gradient-to-br from-gray-100 to-white"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%)",
+        py: 4,
+      }}
     >
-      <Box sx={{ maxWidth: 800, mx: "auto", p: 4, mt: 4 }}>
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+        className="max-w-4xl mx-auto px-4"
+      >
         <ConfirmationDialog />
         <LoadingComponent />
 
-        <motion.div variants={fieldVariants}>
-          <Typography
-            variant="h4"
-            gutterBottom
-            className="tracking-wide font-bold text-slate-800 text-left"
-          >
-            {id ? "Update URL" : "Create a Link"}
-          </Typography>
-          <Typography
-            variant="body2"
-            gutterBottom
-            className="text-yellow-700 text-left font-medium"
-          >
-            You can create 4 more links this month. Upgrade for more.
-          </Typography>
-        </motion.div>
-
-        <Divider sx={{ my: 4, borderColor: "gray-300" }} />
-
-        <motion.form
-          onSubmit={handleSubmit}
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
+        <Paper
+          elevation={2}
+          sx={{
+            borderRadius: 4,
+            p: 4,
+            background: "white",
+            boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)",
+          }}
         >
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
+          <motion.div variants={fieldVariants}>
+            <Box display="flex" alignItems="center" mb={2}>
+              {id ? (
+                <EditIcon color="primary" sx={{ fontSize: 32, mr: 2 }} />
+              ) : (
+                <AddLinkIcon color="primary" sx={{ fontSize: 32, mr: 2 }} />
+              )}
+              <Typography
+                variant="h4"
+                fontWeight="bold"
+                color="text.primary"
+                sx={{ textShadow: "0 2px 4px rgba(0,0,0,0.05)" }}
+              >
+                {id ? "Update URL" : "Create New Short Link"}
+              </Typography>
+            </Box>
+
+            <Chip
+              label="You can create 4 more links this month"
+              color="warning"
+              size="small"
+              sx={{ mb: 3 }}
+            />
+          </motion.div>
+
+          <Divider sx={{ my: 3, borderColor: "divider" }} />
+
+          <motion.form onSubmit={handleSubmit} variants={containerVariants}>
+            <Stack spacing={3}>
               <motion.div variants={fieldVariants}>
-                <Typography
-                  variant="h6"
-                  gutterBottom
-                  className="text-slate-700 font-semibold"
-                >
-                  Destination
-                </Typography>
+                <Box display="flex" alignItems="center" mb={1}>
+                  <LinkIcon color="action" sx={{ mr: 1 }} />
+                  <Typography
+                    variant="h6"
+                    fontWeight="600"
+                    color="text.primary"
+                  >
+                    Destination URL
+                  </Typography>
+                </Box>
                 <TextField
                   fullWidth
                   name="destination"
@@ -230,23 +266,26 @@ const CreateOrUpdateUrl = () => {
                   error={!!state.errors.destination}
                   helperText={state.errors.destination}
                   disabled={!!id}
-                  InputProps={{
-                    sx: {
-                      "& fieldset": { borderColor: "gray-300" },
-                      "&:hover fieldset": { borderColor: "blue-500" },
-                      "&.Mui-focused fieldset": { borderColor: "blue-600" },
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      "& fieldset": {
+                        borderColor: "divider",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "primary.main",
+                      },
                     },
                   }}
                 />
               </motion.div>
-            </Grid>
 
-            <Grid item xs={12}>
               <motion.div variants={fieldVariants}>
                 <Typography
                   variant="h6"
-                  gutterBottom
-                  className="text-slate-700 font-semibold"
+                  fontWeight="600"
+                  color="text.primary"
+                  mb={1}
                 >
                   Title (optional)
                 </Typography>
@@ -258,161 +297,212 @@ const CreateOrUpdateUrl = () => {
                   variant="outlined"
                   inputProps={{ maxLength: 50 }}
                   helperText="Max 50 characters"
-                  InputProps={{
-                    sx: {
-                      "& fieldset": { borderColor: "gray-300" },
-                      "&:hover fieldset": { borderColor: "blue-500" },
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
                     },
                   }}
                 />
               </motion.div>
-            </Grid>
 
-            {id && (
-              <Grid item xs={12}>
+              {id && (
                 <motion.div variants={fieldVariants}>
                   <Typography
                     variant="h6"
-                    gutterBottom
-                    className="text-slate-700 font-semibold"
+                    fontWeight="600"
+                    color="text.primary"
+                    mb={1}
                   >
-                    Current Shorten URL
+                    Current Short URL
                   </Typography>
-                  <Tooltip title="This URL cannot be edited">
+                  <Tooltip title="Click to copy" arrow>
                     <TextField
                       fullWidth
                       name="shortenUrl"
                       value={state.shortenUrl}
+                      onClick={copyToClipboard}
                       disabled
                       variant="outlined"
                       InputProps={{
-                        sx: {
-                          "& fieldset": { borderColor: "gray-400" },
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <LinkIcon color="action" />
+                          </InputAdornment>
+                        ),
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton onClick={copyToClipboard}>
+                              <ContentCopyIcon fontSize="small" />
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: 2,
+                          cursor: "pointer",
+                          backgroundColor: "action.hover",
                         },
                       }}
                     />
                   </Tooltip>
                 </motion.div>
-              </Grid>
-            )}
+              )}
 
-            <Grid item xs={12} sm={4}>
-              <motion.div variants={fieldVariants}>
-                <Typography
-                  variant="h6"
-                  gutterBottom
-                  className="text-slate-700 font-semibold"
-                >
-                  Domain
-                </Typography>
-                <Tooltip title="Domain is fixed for this project">
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: { xs: "column", sm: "row" },
+                  gap: 3,
+                }}
+              >
+                <motion.div variants={fieldVariants} style={{ flex: 1 }}>
+                  <Typography
+                    variant="h6"
+                    fontWeight="600"
+                    color="text.primary"
+                    mb={1}
+                  >
+                    Domain
+                  </Typography>
+                  <Tooltip title="Domain is fixed for this project">
+                    <TextField
+                      fullWidth
+                      name="domain"
+                      value={state.domain}
+                      disabled
+                      variant="outlined"
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: 2,
+                          backgroundColor: "action.hover",
+                        },
+                      }}
+                    />
+                  </Tooltip>
+                </motion.div>
+
+                <motion.div variants={fieldVariants} style={{ flex: 2 }}>
+                  <Typography
+                    variant="h6"
+                    fontWeight="600"
+                    color="text.primary"
+                    mb={1}
+                  >
+                    Custom Back-Half (optional)
+                  </Typography>
                   <TextField
                     fullWidth
-                    name="domain"
-                    value={state.domain}
-                    disabled
+                    name="backHalf"
+                    value={state.backHalf}
+                    onChange={handleChange}
                     variant="outlined"
                     InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">/</InputAdornment>
+                      ),
                       sx: {
-                        "& fieldset": { borderColor: "gray-400" },
+                        borderRadius: 2,
                       },
                     }}
+                    error={!!state.errors.backHalf}
+                    helperText={
+                      state.errors.backHalf || (
+                        <Typography variant="caption" color="text.secondary">
+                          Only letters, numbers, hyphens, and underscores
+                          allowed.
+                          <br />2 custom back-halves remaining this month.
+                        </Typography>
+                      )
+                    }
                   />
-                </Tooltip>
-              </motion.div>
-            </Grid>
-
-            <Grid item xs={12} sm={8}>
-              <motion.div variants={fieldVariants}>
-                <Typography
-                  variant="h6"
-                  gutterBottom
-                  className="text-slate-700 font-semibold"
-                >
-                  Custom Back-Half (optional)
-                </Typography>
-                <TextField
-                  fullWidth
-                  name="backHalf"
-                  value={state.backHalf}
-                  onChange={handleChange}
-                  variant="outlined"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">/</InputAdornment>
-                    ),
-                    sx: {
-                      "& fieldset": { borderColor: "gray-300" },
-                      "&:hover fieldset": { borderColor: "blue-500" },
-                      "&.Mui-focused fieldset": { borderColor: "blue-600" },
-                    },
-                  }}
-                  error={!!state.errors.backHalf}
-                  helperText={
-                    state.errors.backHalf || (
-                      <Typography
-                        variant="caption"
-                        className="text-yellow-800"
-                      >
-                        Only letters, numbers, hyphens, and underscores allowed.
-                        2 custom back-halves remaining this month.
-                      </Typography>
-                    )
-                  }
-                />
-              </motion.div>
-            </Grid>
-
-            <Grid item xs={12} sx={{ mt: 4 }}>
-              <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    onClick={() => navigate(-1)}
-                    sx={{
-                      borderColor: "gray-400",
-                      "&:hover": { borderColor: "gray-600", backgroundColor: "gray-50" },
-                    }}
-                  >
-                    Back
-                  </Button>
                 </motion.div>
-                {id ? (
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => handleOnUpdate(id)}
-                      sx={{
-                        background: "linear-gradient(90deg, #4B5EFC 0%, #8F6ED5 100%)",
-                        "&:hover": { background: "linear-gradient(90deg, #3D4EDA 0%, #7A50C0 100%)" },
-                      }}
-                    >
-                      Update Link
-                    </Button>
-                  </motion.div>
-                ) : (
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      color="primary"
-                      sx={{
-                        background: "linear-gradient(90deg, #4B5EFC 0%, #8F6ED5 100%)",
-                        "&:hover": { background: "linear-gradient(90deg, #3D4EDA 0%, #7A50C0 100%)" },
-                      }}
-                    >
-                      Create Link
-                    </Button>
-                  </motion.div>
-                )}
               </Box>
-            </Grid>
-          </Grid>
-        </motion.form>
-      </Box>
-    </motion.div>
+
+              <Box sx={{ mt: 2 }}>
+                <Stack direction="row" justifyContent="flex-end" spacing={2}>
+                  <motion.div
+                    variants={buttonVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                  >
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      onClick={() => navigate(-1)}
+                      sx={{
+                        px: 3,
+                        py: 1,
+                        borderRadius: 2,
+                        textTransform: "none",
+                        fontWeight: 600,
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </motion.div>
+                  {id ? (
+                    <motion.div
+                      variants={buttonVariants}
+                      whileHover="hover"
+                      whileTap="tap"
+                    >
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleOnUpdate(id)}
+                        sx={{
+                          px: 3,
+                          py: 1,
+                          borderRadius: 2,
+                          textTransform: "none",
+                          fontWeight: 600,
+                          background:
+                            "linear-gradient(90deg, #3b82f6, #8b5cf6)",
+                          boxShadow: "0 4px 6px rgba(79, 70, 229, 0.2)",
+                          "&:hover": {
+                            boxShadow: "0 6px 8px rgba(79, 70, 229, 0.3)",
+                          },
+                        }}
+                      >
+                        Update Link
+                      </Button>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      variants={buttonVariants}
+                      whileHover="hover"
+                      whileTap="tap"
+                    >
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        // color="primary"
+                        sx={{
+                          px: 3,
+                          py: 1,
+                          borderRadius: 2,
+                          textTransform: "none",
+                          fontWeight: 600,
+                          background:
+                            "linear-gradient(90deg, #3b82f6, #8b5cf6)",
+                          boxShadow: "0 4px 6px rgba(79, 70, 229, 0.2)",
+                          "&:hover": {
+                            boxShadow: "0 6px 8px rgba(79, 70, 229, 0.3)",
+                          },
+                        }}
+                      >
+                        Create Short Link
+                      </Button>
+                    </motion.div>
+                  )}
+                </Stack>
+              </Box>
+            </Stack>
+          </motion.form>
+        </Paper>
+      </motion.div>
+    </Box>
   );
 };
 
