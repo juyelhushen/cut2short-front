@@ -12,9 +12,14 @@ export const makeShort = async (data) => {
   }
 };
 
-export const getUrlsByUserId = async (userId) => {
+export const getUrlsByUserId = async (userId, page, size) => {
   try {
-    const response = await AxiosInstance.get(`/api/v1/url/get/${userId}`);
+    const response = await AxiosInstance.get(`/api/v1/url/get/${userId}`, {
+      params: {
+        page: page,
+        size: size,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("error in fetching urls", error);
@@ -69,10 +74,11 @@ export const generateQRCode = async (data) => {
   }
 };
 
-
 export const getQRCodeList = async (userId) => {
   try {
-    const response = await AxiosInstance.get(`/api/v1/url/qrcode/list/${userId}`);
+    const response = await AxiosInstance.get(
+      `/api/v1/url/qrcode/list/${userId}`
+    );
     return response.data;
   } catch (error) {
     console.error("error in fetching urls", error);
