@@ -17,6 +17,9 @@ import {
   Divider,
   Tooltip,
   Pagination,
+  Dialog,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import {
   ContentCopy,
@@ -28,6 +31,8 @@ import {
   Search,
   FilterList,
   Delete,
+  QrCode,
+  Close,
 } from "@mui/icons-material";
 import chainIcon from "../../assets/chain.png";
 import { toast } from "react-toastify";
@@ -52,6 +57,8 @@ const Links = () => {
     totalPages: 1,
     totalElements: 0,
   });
+  const [qrDialogOpen, setQrDialogOpen] = useState(false);
+  const [selectedQrCode, setSelectedQrCode] = useState("");
 
   useEffect(() => {
     if (userId != null) fetchUrls(userId, pagination.page, pagination.size);
@@ -134,6 +141,29 @@ const Links = () => {
     }));
   };
 
+  const handleQrCodeClick = (qrBase64Code) => {
+    if (qrBase64Code) {
+      setSelectedQrCode(qrBase64Code);
+      setQrDialogOpen(true);
+    }
+  };
+
+  const handleQrDialogClose = () => {
+    setQrDialogOpen(false);
+    setSelectedQrCode("");
+  };
+
+  const downloadQrCode = () => {
+    if (selectedQrCode) {
+      const link = document.createElement("a");
+      link.href = selectedQrCode;
+      link.download = "qrcode.png";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   const filteredUrls = urls.filter(
     (url) =>
       url.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -182,6 +212,175 @@ const Links = () => {
     >
       <ConfirmationDialog />
       <LoadingComponent />
+      <Dialog
+        open={qrDialogOpen}
+        onClose={handleQrDialogClose}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)",
+          },
+        }}
+      >
+        <Box
+          sx={{
+            position: "relative",
+            background: "white",
+            borderRadius: 3,
+            m: 1,
+          }}
+        >
+          {/* Header */}
+          <Box
+            sx={{
+              p: 3,
+              borderBottom: "1px solid",
+              borderColor: "divider",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              background: "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
+              color: "white",
+              borderTopLeftRadius: 3,
+              borderTopRightRadius: 3,
+            }}
+          >
+            <Typography variant="h6" fontWeight="bold">
+              QR Code
+            </Typography>
+            <IconButton
+              onClick={handleQrDialogClose}
+              sx={{ color: "white" }}
+              size="small"
+            >
+              <Close />
+            </IconButton>
+          </Box>
+
+          <DialogContent sx={{ textAlign: "center", py: 4, px: 4 }}>
+            {selectedQrCode && (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 3,
+                }}
+              >
+                {/* QR Code Container with Shadow */}
+                <Box
+                  sx={{
+                    p: 2,
+                    bgcolor: "white",
+                    borderRadius: 3,
+                    boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+                    border: "2px solid",
+                    borderColor: "primary.main",
+                  }}
+                >
+                  <img
+                    src={`data:image/png;base64,${selectedQrCode}`}
+                    alt="QR Code"
+                    style={{
+                      width: "250px",
+                      height: "250px",
+                      borderRadius: "8px",
+                      objectFit: "cover",
+                    }}
+                  />
+                </Box>
+
+                {/* Instructions */}
+                <Box sx={{ textAlign: "center", maxWidth: 400 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Scan this QR code to quickly access your shortened URL
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ mt: 1, display: "block" }}
+                  >
+                    Works with any QR code scanner app
+                  </Typography>
+                </Box>
+              </Box>
+            )}
+          </DialogContent>
+
+          <DialogActions
+            sx={{
+              justifyContent: "center",
+              pb: 4,
+              px: 4,
+              gap: 2,
+              flexDirection: { xs: "column", sm: "row" },
+            }}
+          >
+            <Button
+              onClick={downloadQrCode}
+              variant="contained"
+              color="primary"
+              startIcon={<QrCode />}
+              sx={{
+                px: 4,
+                py: 1.5,
+                borderRadius: 2,
+                textTransform: "none",
+                fontWeight: 600,
+                background: "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
+                "&:hover": {
+                  background:
+                    "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)",
+                  boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)",
+                },
+                minWidth: { xs: "100%", sm: "auto" },
+              }}
+            >
+              Download QR Code
+            </Button>
+            <Button
+              onClick={handleQrDialogClose}
+              variant="outlined"
+              startIcon={<Close />}
+              sx={{
+                px: 4,
+                py: 1.5,
+                borderRadius: 2,
+                textTransform: "none",
+                fontWeight: 600,
+                borderColor: "gray.300",
+                color: "text.secondary",
+                "&:hover": {
+                  borderColor: "gray.400",
+                  backgroundColor: "gray.50",
+                },
+                minWidth: { xs: "100%", sm: "auto" },
+              }}
+            >
+              Close
+            </Button>
+          </DialogActions>
+
+          {/* Footer */}
+          <Box
+            sx={{
+              p: 2,
+              borderTop: "1px solid",
+              borderColor: "divider",
+              textAlign: "center",
+              bgcolor: "grey.50",
+              borderBottomLeftRadius: 3,
+              borderBottomRightRadius: 3,
+            }}
+          >
+            <Typography variant="caption" color="text.secondary">
+              QR codes make sharing your links quick and easy
+            </Typography>
+          </Box>
+        </Box>
+      </Dialog>
 
       <Box
         sx={{
@@ -230,6 +429,7 @@ const Links = () => {
             Create New
           </Button>
         </Stack>
+
         {/* Search and Filter Section */}
         <Stack
           direction={{ xs: "column", sm: "row" }}
@@ -266,6 +466,7 @@ const Links = () => {
             Filter
           </Button>
         </Stack>
+
         {/* Links List */}
         {filteredUrls.length === 0 ? (
           <Box
@@ -276,37 +477,67 @@ const Links = () => {
               justifyContent: "center",
               py: 8,
               textAlign: "center",
+              background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)",
+              borderRadius: 3,
+              mx: 2,
             }}
           >
-            <img
-              src={chainIcon}
-              alt="No links"
-              style={{ width: 120, opacity: 0.5, marginBottom: 16 }}
-            />
-            <Typography variant="h6" color="text.secondary" mb={1}>
+            <Box
+              sx={{
+                width: 120,
+                height: 120,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                bgcolor: "white",
+                borderRadius: "50%",
+                boxShadow: "0 8px 25px rgba(0,0,0,0.1)",
+                mb: 3,
+              }}
+            >
+              <img
+                src={chainIcon}
+                alt="No links"
+                style={{ width: 60, height: 60, opacity: 0.5 }}
+              />
+            </Box>
+            <Typography
+              variant="h6"
+              color="text.secondary"
+              mb={1}
+              fontWeight="600"
+            >
               No links found
             </Typography>
-            <Typography variant="body2" color="text.secondary" mb={3}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              mb={4}
+              sx={{ maxWidth: 400 }}
+            >
               {searchTerm
-                ? "Try a different search term"
-                : "Create your first short link"}
+                ? "No results match your search. Try different keywords."
+                : "Get started by creating your first short link with QR code"}
             </Typography>
             <Button
               variant="contained"
               startIcon={<AddLink />}
               onClick={() => navigate("create", { relative: "path" })}
               sx={{
-                px: 3,
-                py: 1,
+                px: 4,
+                py: 1.5,
                 borderRadius: 2,
-                background: "linear-gradient(90deg, #3b82f6, #8b5cf6)",
+                background: "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
                 "&:hover": {
-                  background: "linear-gradient(90deg, #2563eb, #7c3aed)",
-                  boxShadow: "0 4px 6px rgba(59, 130, 246, 0.3)",
+                  background:
+                    "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)",
+                  boxShadow: "0 6px 20px rgba(59, 130, 246, 0.3)",
                 },
+                textTransform: "none",
+                fontWeight: 600,
               }}
             >
-              Create Link
+              Create Your First Link
             </Button>
           </Box>
         ) : (
@@ -350,16 +581,58 @@ const Links = () => {
                       >
                         <Avatar
                           sx={{
-                            bgcolor: "#e0e7ff",
-                            width: 48,
-                            height: 48,
+                            bgcolor: url.qrBase64Code ? "#e0f2fe" : "#e0e7ff",
+                            width: 56,
+                            height: 56,
+                            cursor: url.qrBase64Code ? "pointer" : "default",
+                            border: url.qrBase64Code ? "2px solid" : "none",
+                            borderColor: url.qrBase64Code
+                              ? "primary.main"
+                              : "transparent",
+                            transition: "all 0.2s ease",
+                            "&:hover": url.qrBase64Code
+                              ? {
+                                  transform: "scale(1.1)",
+                                  boxShadow:
+                                    "0 4px 12px rgba(59, 130, 246, 0.3)",
+                                }
+                              : {},
                           }}
+                          onClick={() =>
+                            url.qrBase64Code &&
+                            handleQrCodeClick(url.qrBase64Code)
+                          }
                         >
-                          <img
-                            src={chainIcon}
-                            alt="Link"
-                            style={{ width: 24, height: 24 }}
-                          />
+                          {url.qrBase64Code ? (
+                            <Box
+                              sx={{
+                                width: 40,
+                                height: 40,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                borderRadius: "4px",
+                                bgcolor: "white",
+                                p: 0.5,
+                              }}
+                            >
+                              <img
+                                src={`data:image/png;base64,${url.qrBase64Code}`}
+                                alt="QR Code"
+                                style={{
+                                  width: "100%",
+                                  height: "100%",
+                                  objectFit: "contain",
+                                }}
+                              />
+                            </Box>
+                          ) : (
+                            <img
+                              src={chainIcon}
+                              alt="Link"
+                              style={{ width: 28, height: 28, opacity: 0.7 }}
+                            />
+                          )}
                         </Avatar>
 
                         <Box sx={{ minWidth: 0 }}>
@@ -376,6 +649,7 @@ const Links = () => {
                             direction="row"
                             spacing={1}
                             alignItems="center"
+                            flexWrap="wrap"
                           >
                             <Typography
                               variant="body2"
@@ -433,6 +707,28 @@ const Links = () => {
                           ml: "auto",
                         }}
                       >
+                        {url.qrBase64Code && (
+                          <Tooltip title="View QR Code">
+                            <IconButton
+                              size="small"
+                              onClick={() =>
+                                handleQrCodeClick(url.qrBase64Code)
+                              }
+                              sx={{
+                                color: "primary.main",
+                                bgcolor: "primary.50",
+                                "&:hover": {
+                                  backgroundColor: "primary.100",
+                                  transform: "scale(1.1)",
+                                },
+                                transition: "all 0.2s ease",
+                              }}
+                            >
+                              <QrCode fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+
                         <Tooltip title="Copy">
                           <IconButton
                             size="small"
@@ -543,7 +839,6 @@ const Links = () => {
           </Stack>
         </Stack>
       </Box>
-
       {/* Context Menu */}
       <Menu
         anchorEl={anchorEl}
@@ -566,6 +861,17 @@ const Links = () => {
           },
         }}
       >
+        {activeUrl?.qrBase64Code && (
+          <MenuItem
+            onClick={() => {
+              handleQrCodeClick(activeUrl.qrBase64Code);
+              handleMenuClose();
+            }}
+          >
+            <QrCode fontSize="small" sx={{ mr: 1.5 }} />
+            View QR Code
+          </MenuItem>
+        )}
         <MenuItem
           onClick={() => {
             handleCopy(activeUrl?.shortenUrl);

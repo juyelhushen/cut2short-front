@@ -20,7 +20,8 @@ import {
   Dialog,
   DialogContent,
   DialogActions,
-  DialogTitle
+  DialogTitle,
+  Pagination
 } from "@mui/material";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -53,18 +54,26 @@ const QRCode = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedQr, setSelectedQr] = useState(null);
+  
+  // Pagination state
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(5);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
 
   useEffect(() => {
-    if (userId) fetchQrCodes(userId);
-  }, [userId]);
+    if (userId) fetchQrCodes(userId, page, size);
+  }, [userId, page, size]);
 
-  const fetchQrCodes = async (userId) => {
+  const fetchQrCodes = async (userId, page, size) => {
     startLoading();
     setIsLoading(true);
     try {
-      const response = await getQRCodeList(userId);
+      const response = await getQRCodeList(userId, page, size);
       if (response.success) {
-        setQrCodes(response.data);
+        setQrCodes(response.data.content);
+        setTotalPages(response.data.totalPages);
+        setTotalElements(response.data.totalElements);
       } else {
         throw new Error("Failed to fetch QR codes");
       }
@@ -113,6 +122,15 @@ const QRCode = () => {
     setSelectedQr(null);
   };
 
+  const handlePageChange = (event, value) => {
+    setPage(value - 1);
+  };
+
+  const handleSizeChange = (event) => {
+    setSize(event.target.value);
+    setPage(0); 
+  };
+
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
@@ -135,7 +153,13 @@ const QRCode = () => {
         
         {/* Header */}
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-          <Typography variant="h4" fontWeight="bold" color="text.primary">
+          <Typography  variant="h4"
+            sx={{
+              fontWeight: 700,
+              background: "linear-gradient(90deg, #3b82f6, #8b5cf6)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}>
             QR Codes
           </Typography>
           
@@ -259,95 +283,132 @@ const QRCode = () => {
             ))}
           </Box>
         ) : filteredQrCodes.length > 0 ? (
-          <Box sx={{ display: "grid", gap: 2 }}>
-            {filteredQrCodes.map((qr) => (
-              <motion.div key={qr.id} variants={itemVariants}>
-                <Card sx={{ borderRadius: "12px", boxShadow: "0 2px 4px rgba(0, 0, 0, 0.05)" }}>
-                  <CardContent>
-                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                        <Avatar 
-                          src={`data:image/png;base64,${qr.byteData}`} 
-                          variant="square"
-                          sx={{ width: 80, height: 80, borderRadius: "8px" }}
-                        />
-                        
-                        <Box>
-                          <Typography variant="subtitle1" fontWeight="bold">
-                            {qr.title || "Untitled QR Code"}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center", mt: 0.5 }}>
-                            <LinkIcon sx={{ fontSize: 16, mr: 0.5 }} />
-                            {qr.originalUrl.length > 40 
-                              ? `${qr.originalUrl.substring(0, 40)}...` 
-                              : qr.originalUrl}
-                          </Typography>
+          <>
+            <Box sx={{ display: "grid", gap: 2, mb: 3 }}>
+              {filteredQrCodes.map((qr) => (
+                <motion.div key={qr.id} variants={itemVariants}>
+                  <Card sx={{ borderRadius: "12px", boxShadow: "0 2px 4px rgba(0, 0, 0, 0.05)" }}>
+                    <CardContent>
+                      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                          <Avatar 
+                            src={`data:image/png;base64,${qr.byteData}`} 
+                            variant="square"
+                            sx={{ width: 80, height: 80, borderRadius: "8px" }}
+                          />
                           
-                          <Box sx={{ display: "flex", alignItems: "center", mt: 1, gap: 1 }}>
-                            <Chip
-                              icon={qr.active ? <CheckCircle fontSize="small" /> : <Cancel fontSize="small" />}
-                              label={qr.active ? "Active" : "Inactive"}
-                              size="small"
-                              color={qr.active ? "success" : "error"}
-                              sx={{ borderRadius: "4px" }}
-                            />
+                          <Box>
+                            <Typography variant="subtitle1" fontWeight="bold">
+                              {qr.title || "Untitled QR Code"}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center", mt: 0.5 }}>
+                              <LinkIcon sx={{ fontSize: 16, mr: 0.5 }} />
+                              {qr.originalUrl.length > 40 
+                                ? `${qr.originalUrl.substring(0, 40)}...` 
+                                : qr.originalUrl}
+                            </Typography>
                             
-                            <Chip
-                              icon={<CalendarToday fontSize="small" />}
-                              label={qr.createdOn}
-                              size="small"
-                              sx={{ borderRadius: "4px", backgroundColor: "#f0f4ff" }}
-                            />
+                            <Box sx={{ display: "flex", alignItems: "center", mt: 1, gap: 1 }}>
+                              <Chip
+                                icon={qr.active ? <CheckCircle fontSize="small" /> : <Cancel fontSize="small" />}
+                                label={qr.active ? "Active" : "Inactive"}
+                                size="small"
+                                color={qr.active ? "success" : "error"}
+                                sx={{ borderRadius: "4px" }}
+                              />
+                              
+                              <Chip
+                                icon={<CalendarToday fontSize="small" />}
+                                label={qr.createdOn}
+                                size="small"
+                                sx={{ borderRadius: "4px", backgroundColor: "#f0f4ff" }}
+                              />
+                            </Box>
                           </Box>
                         </Box>
-                      </Box>
-                      
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        <Tooltip title="Download QR Code">
-                          <IconButton
-                            onClick={() => handleDownload(qr.byteData, qr.title)}
-                            sx={{ 
-                              backgroundColor: "#f0f4ff",
-                              borderRadius: "8px",
-                              '&:hover': { backgroundColor: "#e0e7ff" }
-                            }}
+                        
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          <Tooltip title="Download QR Code">
+                            <IconButton
+                              onClick={() => handleDownload(qr.byteData, qr.title)}
+                              sx={{ 
+                                backgroundColor: "#f0f4ff",
+                                borderRadius: "8px",
+                                '&:hover': { backgroundColor: "#e0e7ff" }
+                              }}
+                            >
+                              <Download fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                          
+                          <Tooltip title="Share QR Code">
+                            <IconButton
+                              onClick={() => handleShare(qr.id)}
+                              sx={{ 
+                                backgroundColor: "#f0f4ff",
+                                borderRadius: "8px",
+                                '&:hover': { backgroundColor: "#e0e7ff" }
+                              }}
+                            >
+                              <Share fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                          
+                          <Button 
+                            variant="outlined" 
+                            size="small"
+                            sx={{ borderRadius: "8px" }}
+                            onClick={() => handleOpenDialog(qr)}
                           >
-                            <Download fontSize="small" />
+                            Scan data
+                          </Button>
+                          
+                          <IconButton>
+                            <MoreVert />
                           </IconButton>
-                        </Tooltip>
-                        
-                        <Tooltip title="Share QR Code">
-                          <IconButton
-                            onClick={() => handleShare(qr.id)}
-                            sx={{ 
-                              backgroundColor: "#f0f4ff",
-                              borderRadius: "8px",
-                              '&:hover': { backgroundColor: "#e0e7ff" }
-                            }}
-                          >
-                            <Share fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                        
-                        <Button 
-                          variant="outlined" 
-                          size="small"
-                          sx={{ borderRadius: "8px" }}
-                          onClick={() => handleOpenDialog(qr)}
-                        >
-                          Scan data
-                        </Button>
-                        
-                        <IconButton>
-                          <MoreVert />
-                        </IconButton>
+                        </Box>
                       </Box>
-                    </Box>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </Box>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </Box>
+            
+            {/* Pagination Controls */}
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 3 }}>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+                  Rows per page:
+                </Typography>
+                <FormControl size="small" sx={{ minWidth: 60 }}>
+                  <Select
+                    value={size}
+                    onChange={handleSizeChange}
+                    displayEmpty
+                    sx={{ borderRadius: "4px", height: 32 }}
+                  >
+                    <MenuItem value={5}>5</MenuItem>
+                    <MenuItem value={10}>10</MenuItem>
+                    <MenuItem value={25}>25</MenuItem>
+                    <MenuItem value={50}>50</MenuItem>
+                  </Select>
+                </FormControl>
+                <Typography variant="body2" color="text.secondary" sx={{ ml: 2 }}>
+                  {`${page * size + 1}-${Math.min((page + 1) * size, totalElements)} of ${totalElements}`}
+                </Typography>
+              </Box>
+              
+              <Pagination
+                count={totalPages}
+                page={page + 1} // Convert to 1-based index for MUI
+                onChange={handlePageChange}
+                color="primary"
+                shape="rounded"
+                showFirstButton
+                showLastButton
+              />
+            </Box>
+          </>
         ) : (
           <Box sx={{ textAlign: "center", py: 8 }}>
             <QrCodeIcon sx={{ fontSize: 80, color: "#cbd5e1", mb: 2 }} />

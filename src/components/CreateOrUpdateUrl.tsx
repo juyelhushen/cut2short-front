@@ -11,6 +11,13 @@ import {
   Chip,
   Stack,
   IconButton,
+  Switch,
+  FormControlLabel,
+  Card,
+  Alert,
+  Dialog,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import { createUrlShort, getUrlById, updateUrl } from "../services/UrlService";
 import useConfirmation from "../hooks/useConfirmation";
@@ -22,6 +29,11 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import LinkIcon from "@mui/icons-material/Link";
 import EditIcon from "@mui/icons-material/Edit";
 import AddLinkIcon from "@mui/icons-material/AddLink";
+import QrCodeIcon from "@mui/icons-material/QrCode";
+import CloseIcon from "@mui/icons-material/Close";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import { toast } from "react-toastify";
+import QRCode from "qrcode";
 
 interface FormState {
   destination: string;
@@ -34,13 +46,16 @@ interface FormState {
   };
   isSubmitting: boolean;
   shortenUrl: string;
+  generateQrCode: boolean;
+  qrCodeData: string | null;
 }
 
 const CreateOrUpdateUrl = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { openDialog, ConfirmationDialog } = useConfirmation();
-  const { LoadingComponent, startLoading, stopLoading } = useLoading();
+  const { LoadingComponent, startLoading, stopLoading, withLoading } =
+    useLoading();
   const [state, setState] = useState<FormState>({
     destination: "",
     title: "",
@@ -49,7 +64,10 @@ const CreateOrUpdateUrl = () => {
     errors: {},
     isSubmitting: false,
     shortenUrl: "",
+    generateQrCode: false,
+    qrCodeData: null,
   });
+  const [qrPreviewOpen, setQrPreviewOpen] = useState(false);
 
   const validate = (): boolean => {
     const errors: FormState["errors"] = {};
@@ -94,6 +112,23 @@ const CreateOrUpdateUrl = () => {
     }
   };
 
+  const generateQrCode = async (url: string): Promise<string> => {
+    try {
+      const qrDataUrl = await QRCode.toDataURL(url, {
+        width: 300,
+        margin: 2,
+        color: {
+          dark: "#3b82f6",
+          light: "#FFFFFF",
+        },
+      });
+      return qrDataUrl.split(",")[1];
+    } catch (error) {
+      console.error("QR Code generation error:", error);
+      throw new Error("Failed to generate QR code");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -101,27 +136,44 @@ const CreateOrUpdateUrl = () => {
 
     openDialog(
       "Create Short Link",
-      "Are you sure you want to create this short URL?",
+      `Are you sure you want to create this short URL? ${
+        state.generateQrCode ? "A QR code will also be generated." : ""
+      }`,
       async () => {
-        startLoading();
-        try {
-          const payload = {
-            originalUrl: state.destination,
-            title: state.title,
-            suffix: state.backHalf,
-          };
-          const response = await createUrlShort(payload);
-          if (response.success) {
-            navigate(-1);
+        await withLoading(async () => {
+          try {
+            let qrCodeBase64 = null;
+
+            // Generate QR code if enabled
+            if (state.generateQrCode && state.destination) {
+              try {
+                qrCodeBase64 = await generateQrCode(state.destination);
+              } catch (error) {
+                toast.error("Failed to generate QR code");
+                return;
+              }
+            }
+
+            const payload = {
+              originalUrl: state.destination,
+              title: state.title,
+              suffix: state.backHalf,
+              qrCodeData: qrCodeBase64,
+            };
+
+            const response = await createUrlShort(payload);
+            if (response.success) {
+              toast.success("Short link created successfully!");
+              navigate(-1);
+            }
+          } catch (error) {
+            console.error("Submission error:", error);
+            toast.error("Failed to create short link");
           }
-        } catch (error) {
-          console.error("Submission error:", error);
-        } finally {
-          stopLoading();
-        }
+        });
       },
       {
-        confirmText: "Confirm",
+        confirmText: "Create",
         cancelText: "Cancel",
         icon: CheckIcon,
       }
@@ -153,7 +205,7 @@ const CreateOrUpdateUrl = () => {
         }
       },
       {
-        confirmText: "Confirm",
+        confirmText: "Update",
         cancelText: "Cancel",
         icon: CheckIcon,
       }
@@ -169,9 +221,79 @@ const CreateOrUpdateUrl = () => {
     }));
   };
 
+  const handleQrCodeToggle = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const generateQrCode = event.target.checked;
+
+    if (generateQrCode && state.destination) {
+      // Generate QR code preview when enabling
+      try {
+        const qrDataUrl = await QRCode.toDataURL(state.destination, {
+          width: 300,
+          margin: 2,
+          color: {
+            dark: "#3b82f6",
+            light: "#FFFFFF",
+          },
+        });
+        setState((prev) => ({
+          ...prev,
+          generateQrCode,
+          qrCodeData: qrDataUrl,
+        }));
+        setQrPreviewOpen(true);
+      } catch (error) {
+        console.error("QR Code generation error:", error);
+        toast.error("Failed to generate QR code preview");
+        // Still set the toggle but don't show preview
+        setState((prev) => ({
+          ...prev,
+          generateQrCode,
+          qrCodeData: null,
+        }));
+      }
+    } else {
+      setState((prev) => ({
+        ...prev,
+        generateQrCode,
+        qrCodeData: null,
+      }));
+    }
+  };
+
+  const handlePreviewQrCode = async () => {
+    if (state.destination) {
+      try {
+        const qrDataUrl = await QRCode.toDataURL(state.destination, {
+          width: 300,
+          margin: 2,
+          color: {
+            dark: "#3b82f6",
+            light: "#FFFFFF",
+          },
+        });
+        setState((prev) => ({
+          ...prev,
+          qrCodeData: qrDataUrl,
+        }));
+        setQrPreviewOpen(true);
+      } catch (error) {
+        console.error("QR Code generation error:", error);
+        toast.error("Failed to generate QR code preview");
+      }
+    }
+  };
+
+  const handleQrPreviewClose = () => {
+    setQrPreviewOpen(false);
+  };
+
   const copyToClipboard = () => {
     navigator.clipboard.writeText(state.shortenUrl);
   };
+
+  const isUrlValid = state.destination && !state.errors.destination;
 
   // Animation variants
   const containerVariants = {
@@ -205,6 +327,68 @@ const CreateOrUpdateUrl = () => {
       >
         <ConfirmationDialog />
         <LoadingComponent />
+
+        {/* QR Code Preview Dialog */}
+        <Dialog
+          open={qrPreviewOpen}
+          onClose={handleQrPreviewClose}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogContent sx={{ textAlign: "center", py: 4 }}>
+            <Typography variant="h6" gutterBottom fontWeight="600">
+              QR Code Preview
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+              This is how your QR code will look
+            </Typography>
+            {state.qrCodeData && (
+              <Box
+                sx={{
+                  p: 2,
+                  bgcolor: "white",
+                  borderRadius: 3,
+                  boxShadow: "0 8px 25px rgba(0,0,0,0.1)",
+                  border: "2px solid",
+                  borderColor: "primary.light",
+                  display: "inline-block",
+                }}
+              >
+                <img
+                  src={state.qrCodeData}
+                  alt="QR Code Preview"
+                  style={{
+                    width: "200px",
+                    height: "200px",
+                    borderRadius: "8px",
+                  }}
+                />
+              </Box>
+            )}
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mt: 2, display: "block" }}
+            >
+              Scan this code to visit: {state.destination}
+            </Typography>
+          </DialogContent>
+          <DialogActions sx={{ justifyContent: "center", pb: 3 }}>
+            <Button
+              onClick={handleQrPreviewClose}
+              variant="contained"
+              startIcon={<CloseIcon />}
+              sx={{
+                borderRadius: 2,
+                px: 3,
+                textTransform: "none",
+                fontWeight: 600,
+              }}
+            >
+              Close Preview
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         <Paper
           elevation={2}
@@ -349,6 +533,97 @@ const CreateOrUpdateUrl = () => {
                 </motion.div>
               )}
 
+              {/* QR Code Generation Toggle - Only show for new URLs */}
+              {!id && (
+                <motion.div variants={fieldVariants}>
+                  <Card
+                    sx={{
+                      p: 3,
+                      borderRadius: 3,
+                      background:
+                        "linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)",
+                      border: "1px solid #e2e8f0",
+                    }}
+                  >
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={state.generateQrCode}
+                            onChange={handleQrCodeToggle}
+                            color="primary"
+                            disabled={!isUrlValid}
+                          />
+                        }
+                        label={
+                          <Box>
+                            <Typography variant="subtitle1" fontWeight="600">
+                              Generate QR Code
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              color="text.secondary"
+                              sx={{ mt: 0.5 }}
+                            >
+                              Create a QR code for easy sharing
+                            </Typography>
+                          </Box>
+                        }
+                      />
+                      {state.generateQrCode && isUrlValid && (
+                        <Button
+                          variant="outlined"
+                          startIcon={<VisibilityIcon />}
+                          onClick={handlePreviewQrCode}
+                          size="small"
+                          sx={{
+                            borderRadius: 2,
+                            textTransform: "none",
+                            fontWeight: 600,
+                          }}
+                        >
+                          Preview
+                        </Button>
+                      )}
+                    </Box>
+
+                    {state.generateQrCode && (
+                      <Alert
+                        severity="info"
+                        sx={{
+                          mt: 2,
+                          borderRadius: 2,
+                          bgcolor: "primary.50",
+                          color: "primary.800",
+                          border: "1px solid",
+                          borderColor: "primary.200",
+                        }}
+                        icon={<QrCodeIcon />}
+                      >
+                        A QR code will be generated for quick scanning and
+                        sharing
+                      </Alert>
+                    )}
+
+                    {!isUrlValid && (
+                      <Alert
+                        severity="warning"
+                        sx={{
+                          mt: 2,
+                          borderRadius: 2,
+                        }}
+                      >
+                        Enter a valid URL to enable QR code generation
+                      </Alert>
+                    )}
+                  </Card>
+                </motion.div>
+              )}
+
               <Box
                 sx={{
                   display: "flex",
@@ -458,9 +733,11 @@ const CreateOrUpdateUrl = () => {
                           textTransform: "none",
                           fontWeight: 600,
                           background:
-                            "linear-gradient(90deg, #3b82f6, #8b5cf6)",
+                            "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
                           boxShadow: "0 4px 6px rgba(79, 70, 229, 0.2)",
                           "&:hover": {
+                            background:
+                              "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)",
                             boxShadow: "0 6px 8px rgba(79, 70, 229, 0.3)",
                           },
                         }}
@@ -477,7 +754,7 @@ const CreateOrUpdateUrl = () => {
                       <Button
                         type="submit"
                         variant="contained"
-                        // color="primary"
+                        disabled={!isUrlValid}
                         sx={{
                           px: 3,
                           py: 1,
@@ -485,14 +762,25 @@ const CreateOrUpdateUrl = () => {
                           textTransform: "none",
                           fontWeight: 600,
                           background:
-                            "linear-gradient(90deg, #3b82f6, #8b5cf6)",
+                            "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
                           boxShadow: "0 4px 6px rgba(79, 70, 229, 0.2)",
                           "&:hover": {
+                            background:
+                              "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)",
                             boxShadow: "0 6px 8px rgba(79, 70, 229, 0.3)",
                           },
                         }}
+                        startIcon={
+                          state.generateQrCode ? (
+                            <QrCodeIcon />
+                          ) : (
+                            <AddLinkIcon />
+                          )
+                        }
                       >
-                        Create Short Link
+                        {state.generateQrCode
+                          ? "Create with QR Code"
+                          : "Create Short Link"}
                       </Button>
                     </motion.div>
                   )}

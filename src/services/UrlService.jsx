@@ -74,10 +74,16 @@ export const generateQRCode = async (data) => {
   }
 };
 
-export const getQRCodeList = async (userId) => {
+export const getQRCodeList = async (userId, page = 0, size = 5) => {
   try {
     const response = await AxiosInstance.get(
-      `/api/v1/url/qrcode/list/${userId}`
+      `/api/v1/url/qrcode/list/${userId}`,
+      {
+        params: {
+          page: page,
+          size: size,
+        },
+      }
     );
     return response.data;
   } catch (error) {
