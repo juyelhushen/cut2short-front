@@ -20,7 +20,6 @@ AxiosInstance.interceptors.request.use(
   }
 );
 
-// For OAuth endpoints, add withCredentials
 AxiosInstance.interceptors.request.use((config) => {
   if (config.url.includes("/oauth2")) {
     config.withCredentials = true;

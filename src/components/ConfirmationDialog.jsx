@@ -42,9 +42,11 @@ const ConfirmationDialog = ({
       }}
       sx={{
         "& .MuiDialog-paper": {
-          borderRadius: "12px",
-          boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+          borderRadius: "16px",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
           overflow: "visible",
+          background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
+          border: "1px solid rgba(255, 255, 255, 0.8)",
         },
       }}
     >
@@ -54,17 +56,17 @@ const ConfirmationDialog = ({
           "&:before": {
             content: '""',
             position: "absolute",
-            top: -16,
+            top: -20,
             left: "50%",
             transform: "translateX(-50%)",
-            width: 64,
-            height: 64,
+            width: 70,
+            height: 70,
             borderRadius: "50%",
-            backgroundColor: "error.light",
+            background: "linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            boxShadow: "0 4px 12px rgba(244, 67, 54, 0.3)",
+            boxShadow: "0 6px 20px rgba(139, 92, 246, 0.3)",
           },
         }}
       >
@@ -74,7 +76,7 @@ const ConfirmationDialog = ({
           transition={{ delay: 0.2 }}
           style={{
             position: "absolute",
-            top: -16,
+            top: -20,
             left: "50%",
             transform: "translateX(-50%)",
           }}
@@ -82,11 +84,10 @@ const ConfirmationDialog = ({
           <Icon
             sx={{
               fontSize: 32,
-              color: "error.main",
-              backgroundColor: "background.paper",
+              color: "white",
+              backgroundColor: "transparent",
               borderRadius: "50%",
               padding: 1,
-              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
             }}
           />
         </motion.div>
@@ -95,10 +96,14 @@ const ConfirmationDialog = ({
       <DialogTitle
         sx={{
           textAlign: "center",
-          pt: 6,
+          pt: 7,
           pb: 2,
-          fontSize: "1.25rem",
-          fontWeight: 600,
+          fontSize: "1.5rem",
+          fontWeight: 700,
+          background: "linear-gradient(90deg, #3b82f6, #8b5cf6)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          backgroundClip: "text",
         }}
       >
         {title}
@@ -109,19 +114,25 @@ const ConfirmationDialog = ({
         onClick={onCancel}
         sx={{
           position: "absolute",
-          right: 8,
-          top: 8,
-          color: (theme) => theme.palette.grey[500],
+          right: 12,
+          top: 12,
+          color: "#94a3b8",
+          backgroundColor: "#f1f5f9",
+          "&:hover": {
+            backgroundColor: "#e2e8f0",
+          },
         }}
       >
         <CloseIcon />
       </IconButton>
 
-      <DialogContent sx={{ py: 0 }}>
+      <DialogContent sx={{ py: 0, px: 3 }}>
         <DialogContentText
           sx={{
             textAlign: "center",
-            color: "text.secondary",
+            color: "#64748b",
+            fontSize: "1rem",
+            lineHeight: 1.6,
             mb: 2,
           }}
         >
@@ -129,15 +140,23 @@ const ConfirmationDialog = ({
         </DialogContentText>
       </DialogContent>
 
-      <DialogActions sx={{ p: 3, pt: 0 }}>
+      <DialogActions sx={{ p: 3, pt: 0, justifyContent: "center", gap: 2 }}>
         <Button
           onClick={onCancel}
           variant="outlined"
           sx={{
-            borderRadius: "8px",
+            borderRadius: "12px",
             px: 3,
             py: 1,
             textTransform: "none",
+            fontSize: "1rem",
+            fontWeight: 600,
+            color: "#64748b",
+            borderColor: "#cbd5e1",
+            "&:hover": {
+              borderColor: "#94a3b8",
+              backgroundColor: "#f8fafc",
+            },
           }}
         >
           {cancelText}
@@ -145,15 +164,18 @@ const ConfirmationDialog = ({
         <Button
           onClick={onConfirm}
           variant="contained"
-          color="error"
           sx={{
-            borderRadius: "8px",
+            borderRadius: "12px",
             px: 3,
             py: 1,
             textTransform: "none",
-            boxShadow: "none",
+            fontSize: "1rem",
+            fontWeight: 600,
+            background: "linear-gradient(90deg, #4B5EFC 0%, #8F6ED5 100%)",
+            boxShadow: "0 4px 6px rgba(79, 70, 229, 0.2)",
             "&:hover": {
-              boxShadow: "0 2px 6px rgba(244, 67, 54, 0.4)",
+              background: "linear-gradient(90deg, #3D4EDA 0%, #7A50C0 100%)",
+              boxShadow: "0 6px 8px rgba(79, 70, 229, 0.3)",
             },
           }}
         >
