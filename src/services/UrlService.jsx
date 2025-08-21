@@ -90,3 +90,14 @@ export const getQRCodeList = async (userId, page = 0, size = 5) => {
     console.error("error in fetching urls", error);
   }
 };
+
+
+export const deleteQrCode = async (qrCodeId) => {
+  try {
+    const response = await AxiosInstance.delete(
+      `/api/v1/url/qrcode/delete/${qrCodeId}`);
+    return response.data;
+  } catch (error) {
+    console.error("error in fetching urls", error);
+  }
+};
