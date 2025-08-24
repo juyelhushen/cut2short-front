@@ -4,12 +4,24 @@ import LandingPage from "../pages/LandingPage";
 import Login from "../modules/Login/Login";
 import SignUp from "../modules/Login/SignUp";
 import ProtectedRoute from "../auth/ProtectedRoute";
+import Lottie from "lottie-react";
+import loadingAnimation from "../assets/animations/loading.json";
 
 const Dashboard = lazy(() => import("../layouts/DashBoard"));
 
 const AppRoutes = () => {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center h-screen">
+          <Lottie
+            animationData={loadingAnimation}
+            loop={true}
+            style={{ width: "200px", height: "200px" }}
+          />
+        </div>
+      }
+    >
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />

@@ -5,16 +5,19 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import MainContent from "./dashboard/MainContent ";
 import useLoading from "/src/hooks/useLoading";
 
-const Home = lazy(() => import("/src/modules/dashboard/Home"));
-const Links = lazy(() => import("/src/modules/dashboard/Links"));
-const CreateOrUpdateUrl = lazy(() => import("@components/CreateOrUpdateUrl"));
-const QRCode = lazy(() => import("/src/modules/dashboard/QRCode"));
-const GenerateQRForm = lazy(() => import("@components/GenerateQRForm"));
+const Home = lazy(() => import("../modules/dashboard/Home"));
+const Links = lazy(() => import("../modules/dashboard/Links"));
+const CreateOrUpdateUrl = lazy(() => import("../components/CreateOrUpdateUrl"));
+const QRCode = lazy(() => import("../modules/dashboard/QRCode"));
+const GenerateQRForm = lazy(() => import("../components/GenerateQRForm"));
+const Profile = lazy(() => import("../modules/profile/ProfilePage"));
+const ProfileEdit = lazy(() =>
+  import("../modules/profile/components/ProfileEditForm")
+);
 
 const DashboardLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-   const { LoadingComponent } = useLoading();
-
+  const { LoadingComponent } = useLoading();
 
   return (
     <div className="flex h-screen">
@@ -40,7 +43,13 @@ const DashboardLayout = () => {
                 <Route index element={<QRCode />} />
                 <Route path="create" element={<GenerateQRForm />} />
               </Route>
+
               <Route path="*" element={<MainContent />} />
+
+              <Route path="profile">
+                <Route index element={<Profile />} /> 
+                <Route path="edit" element={<ProfileEdit />} />
+              </Route>
             </Routes>
           </Suspense>
         </div>

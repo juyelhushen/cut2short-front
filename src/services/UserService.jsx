@@ -31,13 +31,34 @@ export const signin = async (data) => {
   }
 };
 
-
 export const clearSeassionCookie = async () => {
   try {
     const response = await AxiosInstance.post("/api/user/logout");
     return response.data;
   } catch (error) {
     console.error("errror in logout in : ", error);
+  }
+};
+
+export const fetchProfileInfo = async () => {
+  try {
+    const response = await AxiosInstance.get("/api/user/profile/info");
+    return response.data;
+  } catch (error) {
+    console.error("errror in logout in : ", error);
+  }
+};
+
+export const updateProfie = async (data) => {
+  try {
+    const response = await AxiosInstance.patch(
+      "/api/user/profile/update",
+      data
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    throw error;
   }
 };
 

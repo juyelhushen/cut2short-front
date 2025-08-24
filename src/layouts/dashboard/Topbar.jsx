@@ -231,7 +231,7 @@ const TopBar = () => {
             </Typography>
           </Box>
           <Divider />
-          <MenuItem onClick={handleClose}>
+          <MenuItem onClick={() => navigate("/dashboard/profile")}>
             <ListItemIcon>
               <AccountCircle fontSize="small" />
             </ListItemIcon>
