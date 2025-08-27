@@ -4,7 +4,7 @@ import { setUserData } from "../store/slices/authSlice";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-export const getUserInfoFetch = async () => {
+export const getUserInfo = async () => {
   try {
     const response = await fetch(`${API_BASE_URL}/api/user/me`, {
       method: "GET",
