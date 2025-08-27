@@ -2,16 +2,39 @@ import axios from "axios";
 import { AxiosInstance } from "./AxiosInstance";
 import { setUserData } from "../store/slices/authSlice";
 
-export const getUserInfo = async () => {
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+export const getUserInfoFetch = async () => {
   try {
-    const response = await AxiosInstance.get("/api/user/me", {
-      withCredentials: true,
+    const response = await fetch(`${API_BASE_URL}/api/user/me`, {
+      method: "GET",
+      credentials: "include", // 🚨 important for cross-origin cookies
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
-    return response.data;
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
   } catch (error) {
-    console.error("errror in fetching userdata", error);
+    console.error("Error in fetching user data with fetch:", error);
   }
 };
+
+// export const getUserInfo = async () => {
+//   try {
+//     const response = await AxiosInstance.get("/api/user/me", {
+//       withCredentials: true,
+//     });
+//     return response.data;
+//   } catch (error) {
+//     console.error("errror in fetching userdata", error);
+//   }
+// };
 
 export const signup = async (data) => {
   try {
