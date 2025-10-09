@@ -3,23 +3,15 @@ import {
   Box,
   Typography,
   Avatar,
-  Paper,
   TextField,
   Button,
   IconButton,
   InputAdornment,
-  Divider,
-  Chip,
-  Tabs,
-  Tab,
+  useTheme,
   alpha,
-  useTheme
 } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
-import { useProfile } from "/src/hooks/useProfile";
-import useConfirmation from "/src/hooks/useConfirmation";
-import { updateProfie } from "/src/services/UserService";
 import {
   Edit as EditIcon,
   CameraAlt as CameraIcon,
@@ -28,18 +20,12 @@ import {
   Person as PersonIcon,
   Email as EmailIcon,
   Phone as PhoneIcon,
-  LocationOn as LocationIcon,
-  CalendarToday as CalendarIcon,
-  Work as WorkIcon,
-  Language as LanguageIcon,
-  Link as LinkIcon,
-  School as SchoolIcon,
-  Favorite as FavoriteIcon,
-  Star as StarIcon,
-  Twitter as TwitterIcon,
   LinkedIn as LinkedInIcon,
-  Instagram as InstagramIcon
+  LocationOn as LocationIcon,
 } from "@mui/icons-material";
+import { useProfile } from "/src/hooks/useProfile";
+import useConfirmation from "/src/hooks/useConfirmation";
+import { updateProfie } from "/src/services/UserService";
 
 // Animation variants
 const containerVariants = {
@@ -48,9 +34,9 @@ const containerVariants = {
     opacity: 1,
     transition: {
       staggerChildren: 0.1,
-      delayChildren: 0.2
-    }
-  }
+      delayChildren: 0.2,
+    },
+  },
 };
 
 const itemVariants = {
@@ -61,63 +47,16 @@ const itemVariants = {
     transition: {
       type: "spring",
       stiffness: 100,
-      damping: 12
-    }
-  }
+      damping: 12,
+    },
+  },
 };
-
-const avatarVariants = {
-  hidden: { scale: 0.8, opacity: 0 },
-  visible: {
-    scale: 1,
-    opacity: 1,
-    transition: {
-      type: "spring",
-      stiffness: 100,
-      damping: 10
-    }
-  }
-};
-
-// Tab panel component
-function TabPanel(props) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`profile-tabpanel-${index}`}
-      aria-labelledby={`profile-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box sx={{ pt: 3 }}>{children}</Box>}
-    </div>
-  );
-}
 
 const ProfilePage = () => {
   const { profile, LoadingComponent, withLoading } = useProfile();
   const { openDialog, ConfirmationDialog } = useConfirmation();
   const [isEdit, setIsEdit] = useState(false);
-  const [tabValue, setTabValue] = useState(0);
   const theme = useTheme();
-
-  // Sample extended user data (in a real app, this would come from your API)
-  const [userData, setUserData] = useState({
-    location: "San Francisco, CA",
-    joinDate: "January 2022",
-    occupation: "Software Engineer",
-    education: "Stanford University",
-    languages: ["English", "Spanish"],
-    interests: ["Technology", "Photography", "Travel", "Music"],
-    skills: ["React", "Node.js", "UI/UX Design", "TypeScript"],
-    website: "https://johndoe.com",
-    twitter: "johndoe",
-    linkedin: "johndoe",
-    instagram: "johndoe",
-    bio: "Passionate about creating beautiful and functional user experiences. Love to travel and explore new technologies."
-  });
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -125,14 +64,6 @@ const ProfilePage = () => {
     phoneNumber: "",
     profileFile: null as File | null,
     profilePreview: "",
-    location: "",
-    occupation: "",
-    education: "",
-    website: "",
-    bio: "",
-    twitter: "",
-    linkedin: "",
-    instagram: ""
   });
 
   useEffect(() => {
@@ -145,14 +76,6 @@ const ProfilePage = () => {
         phoneNumber: profile.phoneNumber || "",
         profileFile: null,
         profilePreview: profile.profileUrl || "",
-        location: userData.location,
-        occupation: userData.occupation,
-        education: userData.education,
-        website: userData.website,
-        bio: userData.bio,
-        twitter: userData.twitter,
-        linkedin: userData.linkedin,
-        instagram: userData.instagram
       });
     }
   }, [profile]);
@@ -189,16 +112,6 @@ const ProfilePage = () => {
               base6dProfile: base64Profile,
             });
 
-            // Update user data with the new information
-            setUserData({
-              ...userData,
-              location: formData.location,
-              occupation: formData.occupation,
-              education: formData.education,
-              website: formData.website,
-              bio: formData.bio
-            });
-
             toast.success("Profile updated successfully!");
             setIsEdit(false);
           } catch (err) {
@@ -226,159 +139,276 @@ const ProfilePage = () => {
       reader.onerror = (error) => reject(error);
     });
 
-  const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
-  };
-
   if (!profile) return <LoadingComponent />;
 
   return (
     <Box
       sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "flex-start",
         minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
         p: 2,
-        pt: 4
+        position: "relative",
+        overflow: "hidden",
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          width: "400px",
+          height: "400px",
+          background: "linear-gradient(45deg, #8a2be2, #00bfff)",
+          borderRadius: "50%",
+          top: "-100px",
+          right: "-100px",
+          opacity: 0.2,
+          filter: "blur(40px)",
+        },
+        "&::after": {
+          content: '""',
+          position: "absolute",
+          width: "300px",
+          height: "300px",
+          background: "linear-gradient(135deg, #ff9a9e, #fad0c4)",
+          borderRadius: "50%",
+          bottom: "-100px",
+          left: "-100px",
+          opacity: 0.2,
+          filter: "blur(40px)",
+        },
       }}
     >
+      <LoadingComponent />
+      <ConfirmationDialog />
+
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
         style={{ width: "100%", maxWidth: "1000px" }}
       >
-        <Paper
+        <Box
           sx={{
-            width: "100%",
-            p: { xs: 2, sm: 3 },
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            background: alpha("#fff", 0.8),
+            backdropFilter: "blur(10px)",
             borderRadius: 4,
-            boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
             overflow: "hidden",
+            boxShadow: "0 15px 35px rgba(0,0,0,0.1)",
+            border: "1px solid rgba(255, 255, 255, 0.5)",
           }}
         >
-          <LoadingComponent />
-          <ConfirmationDialog />
-
-          {/* Profile Header */}
-          <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, alignItems: "center", mb: 4 }}>
-            <Box sx={{ position: "relative", mr: { md: 4 }, mb: { xs: 2, md: 0 } }}>
-              <motion.div
-                variants={avatarVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                <Avatar
-                  src={formData.profilePreview}
-                  alt="Profile Picture"
-                  sx={{
-                    width: 120,
-                    height: 120,
-                    border: "3px solid #8b5cf6",
-                    boxShadow: "0 8px 16px rgba(139, 92, 246, 0.2)",
-                  }}
-                />
-              </motion.div>
-              {isEdit && (
-                <IconButton
-                  component="label"
-                  sx={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: 0,
-                    backgroundColor: "primary.main",
-                    color: "white",
-                    "&:hover": {
-                      backgroundColor: "primary.dark",
-                    },
-                  }}
-                >
-                  <CameraIcon />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    hidden
-                    name="profileFile"
-                    onChange={handleChange}
-                  />
-                </IconButton>
-              )}
-            </Box>
-
-            <Box sx={{ textAlign: { xs: "center", md: "left" }, flexGrow: 1 }}>
-              <Typography
-                variant="h4"
+          {/* Sidebar with user info */}
+          <Box
+            sx={{
+              width: { xs: "100%", md: "35%" },
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              p: 4,
+              color: "white",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+              position: "relative",
+              overflow: "hidden",
+              "&::before": {
+                content: '""',
+                position: "absolute",
+                width: "200px",
+                height: "200px",
+                background: "rgba(255,255,255,0.1)",
+                borderRadius: "50%",
+                top: "-50px",
+                left: "-50px",
+              },
+              "&::after": {
+                content: '""',
+                position: "absolute",
+                width: "150px",
+                height: "150px",
+                background: "rgba(255,255,255,0.1)",
+                borderRadius: "50%",
+                bottom: "-50px",
+                right: "-50px",
+              },
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2, type: "spring" }}
+            >
+              <Avatar
+                src={formData.profilePreview}
                 sx={{
-                  fontWeight: "bold",
-                  background: "linear-gradient(45deg, #8b5cf6, #ec4899)",
-                  backgroundClip: "text",
-                  textFillColor: "transparent",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
+                  width: 120,
+                  height: 120,
+                  border: "4px solid rgba(255,255,255,0.3)",
+                  boxShadow: "0 8px 16px rgba(0,0,0,0.2)",
+                  mb: 3,
                 }}
+              />
+            </motion.div>
+
+            <Typography variant="h5" fontWeight="bold" sx={{ mb: 1 }}>
+              {profile.name}
+            </Typography>
+
+            <Typography variant="body2" sx={{ opacity: 0.8, mb: 3 }}>
+              UI/UX Designer
+            </Typography>
+
+            <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+              <IconButton
+                sx={{ color: "white", background: "rgba(255,255,255,0.2)" }}
               >
-                {profile.name}
-              </Typography>
-              
-              <Box sx={{ display: "flex", alignItems: "center", justifyContent: { xs: "center", md: "flex-start" }, mt: 1, flexWrap: 'wrap' }}>
-                <Chip 
-                  icon={<WorkIcon />} 
-                  label={userData.occupation} 
-                  size="small" 
-                  variant="outlined" 
-                  sx={{ mr: 1, mb: 1 }} 
-                />
-                <Chip 
-                  icon={<LocationIcon />} 
-                  label={userData.location} 
-                  size="small" 
-                  variant="outlined" 
-                  sx={{ mr: 1, mb: 1 }} 
-                />
-                <Chip 
-                  icon={<CalendarIcon />} 
-                  label={`Joined ${userData.joinDate}`} 
-                  size="small" 
-                  variant="outlined" 
-                  sx={{ mb: 1 }} 
-                />
-              </Box>
+                <LinkedInIcon />
+              </IconButton>
+              <IconButton
+                sx={{ color: "white", background: "rgba(255,255,255,0.2)" }}
+              >
+                <EmailIcon />
+              </IconButton>
             </Box>
 
-            <Box sx={{ mt: { xs: 2, md: 0 } }}>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button
-                  variant={isEdit ? "outlined" : "contained"}
-                  color="primary"
-                  onClick={() => setIsEdit(!isEdit)}
-                  startIcon={isEdit ? <CloseIcon /> : <EditIcon />}
-                  sx={{
-                    borderRadius: 3,
-                    px: 4,
-                    py: 1,
-                    fontWeight: "bold",
-                    boxShadow: isEdit ? "none" : "0 4px 12px rgba(139, 92, 246, 0.3)",
-                  }}
-                >
-                  {isEdit ? "Cancel" : "Edit Profile"}
-                </Button>
-              </motion.div>
+            <Box sx={{ mt: 4, width: "100%" }}>
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <LocationIcon sx={{ mr: 1, fontSize: "20px" }} />
+                <Typography variant="body2">San Francisco, CA</Typography>
+              </Box>
+
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <PhoneIcon sx={{ mr: 1, fontSize: "20px" }} />
+                <Typography variant="body2">
+                  {profile.phoneNumber || "+1 (234) 567-8900"}
+                </Typography>
+              </Box>
             </Box>
           </Box>
 
-          <AnimatePresence mode="wait">
-            {isEdit ? (
-              <motion.div
-                key="edit-form"
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.2 }}
-              >
-                <Box sx={{ display: 'grid', gridTemplateColumns: { md: '1fr 1fr' }, gap: 3 }}>
-                  <motion.div variants={itemVariants}>
+          {/* Main content area */}
+          <Box sx={{ width: { xs: "100%", md: "65%" }, p: 4 }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 4,
+              }}
+            >
+              <Typography variant="h4" fontWeight="bold" color="primary">
+                Profile Settings
+              </Typography>
+
+              {!isEdit ? (
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button
+                    variant="contained"
+                    startIcon={<EditIcon />}
+                    onClick={() => setIsEdit(true)}
+                    sx={{
+                      borderRadius: 2,
+                      px: 3,
+                      py: 1,
+                      background:
+                        "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                      boxShadow: "0 4px 10px rgba(102, 126, 234, 0.4)",
+                    }}
+                  >
+                    Edit Profile
+                  </Button>
+                </motion.div>
+              ) : (
+                <Box sx={{ display: "flex", gap: 1 }}>
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Button
+                      variant="outlined"
+                      startIcon={<CloseIcon />}
+                      onClick={() => setIsEdit(false)}
+                      sx={{ borderRadius: 2, px: 3, py: 1 }}
+                    >
+                      Cancel
+                    </Button>
+                  </motion.div>
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Button
+                      variant="contained"
+                      startIcon={<CheckIcon />}
+                      onClick={handleSave}
+                      sx={{
+                        borderRadius: 2,
+                        px: 3,
+                        py: 1,
+                        background:
+                          "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+                        boxShadow: "0 4px 10px rgba(79, 172, 254, 0.4)",
+                      }}
+                    >
+                      Save Changes
+                    </Button>
+                  </motion.div>
+                </Box>
+              )}
+            </Box>
+
+            <AnimatePresence mode="wait">
+              {isEdit ? (
+                <motion.div
+                  key="edit-form"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Box sx={{ mb: 3, textAlign: "center" }}>
+                    <IconButton
+                      component="label"
+                      sx={{
+                        border: "2px dashed",
+                        borderColor: "primary.main",
+                        p: 1,
+                        "&:hover": {
+                          background: alpha(theme.palette.primary.main, 0.1),
+                        },
+                      }}
+                    >
+                      <CameraIcon
+                        sx={{ color: "primary.main", fontSize: "28px" }}
+                      />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        hidden
+                        name="profileFile"
+                        onChange={handleChange}
+                      />
+                    </IconButton>
+                    <Typography
+                      variant="body2"
+                      sx={{ mt: 1, color: "text.secondary" }}
+                    >
+                      Click to change photo
+                    </Typography>
+                  </Box>
+
+                  <Box
+                    sx={{
+                      display: "grid",
+                      gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                      gap: 3,
+                    }}
+                  >
                     <TextField
                       label="First Name"
                       name="firstName"
@@ -393,9 +423,7 @@ const ProfilePage = () => {
                         ),
                       }}
                     />
-                  </motion.div>
-                  
-                  <motion.div variants={itemVariants}>
+
                     <TextField
                       label="Last Name"
                       name="lastName"
@@ -410,15 +438,29 @@ const ProfilePage = () => {
                         ),
                       }}
                     />
-                  </motion.div>
-                  
-                  <motion.div variants={itemVariants}>
+
+                    <TextField
+                      label="Email"
+                      value={profile.email}
+                      fullWidth
+                      disabled
+                      sx={{ gridColumn: { xs: "1", sm: "1 / -1" } }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <EmailIcon color="primary" />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+
                     <TextField
                       label="Mobile Number"
                       name="phoneNumber"
                       value={formData.phoneNumber}
                       onChange={handleChange}
                       fullWidth
+                      sx={{ gridColumn: { xs: "1", sm: "1 / -1" } }}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
@@ -427,336 +469,109 @@ const ProfilePage = () => {
                         ),
                       }}
                     />
-                  </motion.div>
-
-                  <motion.div variants={itemVariants}>
-                    <TextField
-                      label="Location"
-                      name="location"
-                      value={formData.location}
-                      onChange={handleChange}
-                      fullWidth
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <LocationIcon color="primary" />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  </motion.div>
-
-                  <motion.div variants={itemVariants}>
-                    <TextField
-                      label="Occupation"
-                      name="occupation"
-                      value={formData.occupation}
-                      onChange={handleChange}
-                      fullWidth
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <WorkIcon color="primary" />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  </motion.div>
-
-                  <motion.div variants={itemVariants}>
-                    <TextField
-                      label="Education"
-                      name="education"
-                      value={formData.education}
-                      onChange={handleChange}
-                      fullWidth
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <SchoolIcon color="primary" />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  </motion.div>
-
-                  <motion.div variants={itemVariants} style={{ gridColumn: '1 / -1' }}>
-                    <TextField
-                      label="Website"
-                      name="website"
-                      value={formData.website}
-                      onChange={handleChange}
-                      fullWidth
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <LinkIcon color="primary" />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  </motion.div>
-
-                  <motion.div variants={itemVariants} style={{ gridColumn: '1 / -1' }}>
-                    <TextField
-                      label="Bio"
-                      name="bio"
-                      value={formData.bio}
-                      onChange={handleChange}
-                      fullWidth
-                      multiline
-                      rows={4}
-                    />
-                  </motion.div>
-
-                  <motion.div variants={itemVariants} style={{ gridColumn: '1 / -1' }}>
-                    <Typography variant="h6" sx={{ mb: 2, mt: 1 }}>Social Media</Typography>
-                    <Box sx={{ display: 'grid', gridTemplateColumns: { md: '1fr 1fr' }, gap: 2 }}>
-                      <TextField
-                        label="Twitter"
-                        name="twitter"
-                        value={formData.twitter}
-                        onChange={handleChange}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <TwitterIcon color="primary" />
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                      <TextField
-                        label="LinkedIn"
-                        name="linkedin"
-                        value={formData.linkedin}
-                        onChange={handleChange}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <LinkedInIcon color="primary" />
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                      <TextField
-                        label="Instagram"
-                        name="instagram"
-                        value={formData.instagram}
-                        onChange={handleChange}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <InstagramIcon color="primary" />
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                    </Box>
-                  </motion.div>
-                </Box>
-
-                <motion.div variants={itemVariants}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      gap: 2,
-                      justifyContent: "center",
-                      mt: 4,
-                    }}
-                  >
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={handleSave}
-                      startIcon={<CheckIcon />}
-                      sx={{
-                        borderRadius: 3,
-                        px: 4,
-                        py: 1.5,
-                        fontWeight: "bold",
-                      }}
-                      size="large"
-                    >
-                      Save Changes
-                    </Button>
                   </Box>
                 </motion.div>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="profile-view"
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                exit={{ opacity: 0, y: 20 }}
-                transition={{ duration: 0.2 }}
-              >
-                <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-                  <Tabs value={tabValue} onChange={handleTabChange} aria-label="profile tabs">
-                    <Tab label="Overview" />
-                    <Tab label="Skills & Interests" />
-                    <Tab label="Social" />
-                  </Tabs>
-                </Box>
-
-                <TabPanel value={tabValue} index={0}>
-                  <Box sx={{ display: 'grid', gridTemplateColumns: { md: '2fr 1fr' }, gap: 4 }}>
-                    <Box>
-                      <Typography variant="h6" sx={{ mb: 2 }}>About Me</Typography>
-                      <Typography variant="body1" sx={{ mb: 3, lineHeight: 1.7 }}>
-                        {userData.bio}
+              ) : (
+                <motion.div
+                  key="profile-view"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Box
+                    sx={{
+                      display: "grid",
+                      gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                      gap: 3,
+                      mb: 4,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        p: 2,
+                        background: alpha(theme.palette.primary.main, 0.05),
+                        borderRadius: 2,
+                      }}
+                    >
+                      <Typography variant="body2" color="text.secondary">
+                        First Name
                       </Typography>
-                      
-                      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                          <EmailIcon sx={{ mr: 2, color: "primary.main" }} />
-                          <Box>
-                            <Typography variant="caption" color="text.secondary">Email</Typography>
-                            <Typography variant="body1">{profile.email}</Typography>
-                          </Box>
-                        </Box>
-
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                          <PhoneIcon sx={{ mr: 2, color: "primary.main" }} />
-                          <Box>
-                            <Typography variant="caption" color="text.secondary">Phone</Typography>
-                            <Typography variant="body1">{profile.phoneNumber || "Not provided"}</Typography>
-                          </Box>
-                        </Box>
-
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                          <LocationIcon sx={{ mr: 2, color: "primary.main" }} />
-                          <Box>
-                            <Typography variant="caption" color="text.secondary">Location</Typography>
-                            <Typography variant="body1">{userData.location}</Typography>
-                          </Box>
-                        </Box>
-
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                          <WorkIcon sx={{ mr: 2, color: "primary.main" }} />
-                          <Box>
-                            <Typography variant="caption" color="text.secondary">Occupation</Typography>
-                            <Typography variant="body1">{userData.occupation}</Typography>
-                          </Box>
-                        </Box>
-
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                          <SchoolIcon sx={{ mr: 2, color: "primary.main" }} />
-                          <Box>
-                            <Typography variant="caption" color="text.secondary">Education</Typography>
-                            <Typography variant="body1">{userData.education}</Typography>
-                          </Box>
-                        </Box>
-
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                          <LanguageIcon sx={{ mr: 2, color: "primary.main" }} />
-                          <Box>
-                            <Typography variant="caption" color="text.secondary">Languages</Typography>
-                            <Typography variant="body1">{userData.languages.join(", ")}</Typography>
-                          </Box>
-                        </Box>
-                      </Box>
+                      <Typography variant="h6" fontWeight="500">
+                        {formData.firstName}
+                      </Typography>
                     </Box>
 
-                    <Box>
-                      <Typography variant="h6" sx={{ mb: 2 }}>Stats</Typography>
-                      <Paper sx={{ p: 3, borderRadius: 3, bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center' }}>
-                          <Box>
-                            <Typography variant="h5" color="primary" fontWeight="bold">42</Typography>
-                            <Typography variant="body2">Projects</Typography>
-                          </Box>
-                          <Box>
-                            <Typography variant="h5" color="primary" fontWeight="bold">128</Typography>
-                            <Typography variant="body2">Connections</Typography>
-                          </Box>
-                          <Box>
-                            <Typography variant="h5" color="primary" fontWeight="bold">16</Typography>
-                            <Typography variant="body2">Reviews</Typography>
-                          </Box>
-                        </Box>
-                      </Paper>
+                    <Box
+                      sx={{
+                        p: 2,
+                        background: alpha(theme.palette.primary.main, 0.05),
+                        borderRadius: 2,
+                      }}
+                    >
+                      <Typography variant="body2" color="text.secondary">
+                        Last Name
+                      </Typography>
+                      <Typography variant="h6" fontWeight="500">
+                        {formData.lastName}
+                      </Typography>
+                    </Box>
 
-                      <Box sx={{ mt: 3 }}>
-                        <Typography variant="h6" sx={{ mb: 2 }}>Website</Typography>
-                        <Chip 
-                          icon={<LinkIcon />} 
-                          label={userData.website} 
-                          variant="outlined" 
-                          onClick={() => window.open(userData.website, '_blank')}
-                          sx={{ cursor: 'pointer' }}
-                        />
-                      </Box>
+                    <Box
+                      sx={{
+                        p: 2,
+                        background: alpha(theme.palette.primary.main, 0.05),
+                        borderRadius: 2,
+                        gridColumn: "1 / -1",
+                      }}
+                    >
+                      <Typography variant="body2" color="text.secondary">
+                        Email Address
+                      </Typography>
+                      <Typography variant="h6" fontWeight="500">
+                        {profile.email}
+                      </Typography>
+                    </Box>
+
+                    <Box
+                      sx={{
+                        p: 2,
+                        background: alpha(theme.palette.primary.main, 0.05),
+                        borderRadius: 2,
+                        gridColumn: "1 / -1",
+                      }}
+                    >
+                      <Typography variant="body2" color="text.secondary">
+                        Phone Number
+                      </Typography>
+                      <Typography variant="h6" fontWeight="500">
+                        {formData.phoneNumber || "Not provided"}
+                      </Typography>
                     </Box>
                   </Box>
-                </TabPanel>
 
-                <TabPanel value={tabValue} index={1}>
-                  <Box sx={{ display: 'grid', gridTemplateColumns: { md: '1fr 1fr' }, gap: 4 }}>
-                    <Box>
-                      <Typography variant="h6" sx={{ mb: 2 }}>Skills</Typography>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                        {userData.skills.map((skill, index) => (
-                          <Chip 
-                            key={index} 
-                            icon={<StarIcon />} 
-                            label={skill} 
-                            color="primary" 
-                            variant="outlined" 
-                          />
-                        ))}
-                      </Box>
-                    </Box>
-
-                    <Box>
-                      <Typography variant="h6" sx={{ mb: 2 }}>Interests</Typography>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                        {userData.interests.map((interest, index) => (
-                          <Chip 
-                            key={index} 
-                            icon={<FavoriteIcon />} 
-                            label={interest} 
-                            color="secondary" 
-                            variant="outlined" 
-                          />
-                        ))}
-                      </Box>
-                    </Box>
+                  <Box
+                    sx={{
+                      p: 3,
+                      background: alpha(theme.palette.primary.main, 0.03),
+                      borderRadius: 3,
+                      border: "1px dashed",
+                      borderColor: "divider",
+                    }}
+                  >
+                    <Typography variant="h6" fontWeight="500" sx={{ mb: 2 }}>
+                      Additional Information
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Your profile is 65% complete. Add more information to make
+                      your profile stand out to others.
+                    </Typography>
                   </Box>
-                </TabPanel>
-
-                <TabPanel value={tabValue} index={2}>
-                  <Typography variant="h6" sx={{ mb: 2 }}>Social Connections</Typography>
-                  <Box sx={{ display: 'grid', gridTemplateColumns: { sm: '1fr 1fr' }, gap: 2 }}>
-                    <Paper sx={{ p: 2, display: 'flex', alignItems: 'center', borderRadius: 3 }}>
-                      <TwitterIcon sx={{ mr: 2, color: "#1DA1F2", fontSize: 32 }} />
-                      <Box>
-                        <Typography variant="body1">Twitter</Typography>
-                        <Typography variant="body2" color="text.secondary">@{userData.twitter}</Typography>
-                      </Box>
-                    </Paper>
-
-                    <Paper sx={{ p: 2, display: 'flex', alignItems: 'center', borderRadius: 3 }}>
-                      <LinkedInIcon sx={{ mr: 2, color: "#0077B5", fontSize: 32 }} />
-                      <Box>
-                        <Typography variant="body1">LinkedIn</Typography>
-                        <Typography variant="body2" color="text.secondary">/{userData.linkedin}</Typography>
-                      </Box>
-                    </Paper>
-
-                    <Paper sx={{ p: 2, display: 'flex', alignItems: 'center', borderRadius: 3 }}>
-                      <InstagramIcon sx={{ mr: 2, color: "#E1306C", fontSize: 32 }} />
-                      <Box>
-                        <Typography variant="body1">Instagram</Typography>
-                        <Typography variant="body2" color="text.secondary">@{userData.instagram}</Typography>
-                      </Box>
-                    </Paper>
-                  </Box>
-                </TabPanel>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </Paper>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </Box>
+        </Box>
       </motion.div>
     </Box>
   );
